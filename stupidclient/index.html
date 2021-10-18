@@ -1,0 +1,68 @@
+<html>
+<head>
+<title>Chat Room</title>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.min.js"></script>
+<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script> -->
+<script src="https://cdn.socket.io/4.2.0/socket.io.min.js" integrity="sha384-PiBR5S00EtOj2Lto9Uu81cmoyZqR57XcOna1oAuVuIEjzj0wpqDVfD0JA9eXlRsj" crossorigin="anonymous"></script>
+</head>
+<body>
+    <ul id="messages">
+        
+    </ul>
+    <input type="text" id="myMessage">
+    <button id="sendbutton">Send</button>
+
+    <script type="text/javascript">
+
+        var socket = io.connect('http://127.0.0.1:5000');
+
+        socket.on('connect', function() {
+            socket.send('User has connected!');
+        });
+
+        socket.on('message', function(msg) {
+            var node = document.createElement("LI");     
+            node.innerHTML = msg
+            document.querySelector("#messages").appendChild(node);
+            console.log('Received message');
+        });
+
+        document.querySelector('#sendbutton').addEventListener('click', function() {
+            socket.send(document.querySelector('#myMessage').value);
+            document.querySelector('#myMessage').value = '';
+        });
+    </script>
+</body>
+</html>
+
+
+<!-- <html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.socket.io/4.2.0/socket.io.min.js" integrity="sha384-PiBR5S00EtOj2Lto9Uu81cmoyZqR57XcOna1oAuVuIEjzj0wpqDVfD0JA9eXlRsj" crossorigin="anonymous"></script>
+</head>
+<body>
+    <h1>client</h1>
+    <script>
+    
+    // In case your front is not served from the same domain as your server, you have to pass the URL of your server.        
+    const socket = io("http://127.0.0.1:5000/");
+
+
+    // GOOD
+    socket.on("connect", () => {
+        // ...
+        console.log("connect connect connect")
+
+        socket.send('Dummy client has connected or sth')
+    });
+
+    socket.on("data", () => { /* ... */ });
+
+
+    </script>
+</body>
+</html> -->
