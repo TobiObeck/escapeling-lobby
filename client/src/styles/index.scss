@@ -142,7 +142,7 @@ a {
 	background-color: var(--dark-color-a);
 }
 
-.chat-form-container form {
+.chat-form-container div {
 	display: flex;
 }
 
@@ -213,4 +213,8 @@ a {
 	.chat-sidebar {
 		display: none;
 	}
+}
+
+.hidden{
+  display: none;
 }

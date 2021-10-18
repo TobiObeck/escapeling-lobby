@@ -1,41 +1,97 @@
 import './styles/index.scss'
 import { Machine, interpret } from 'xstate'
-import { templateMachine } from './ts/TemplateMachine'
+import { lobbyMachine, LobbySchema } from './ts/LobbyMachine'
 
 // ES6 import or TypeScript
 import { io } from "socket.io-client";
 
+// interactable UI elements
+const usernameInp = document.querySelector("#username-input");
+const roomSel = document.querySelector("#room-select");
+const enterChatSubmitBtn = document.getElementById("enterChatSubmitBtn")
+const leaveRoomBtn = document.getElementById("leave-room-btn")
 
-const service = interpret(templateMachine)
+// content container
+const joinContainer = document.getElementById("join-container")
+const chatContainer = document.getElementById("chat-container")
+
+const initialContext = {
+    username: "",
+    lobbyname: (roomSel as HTMLInputElement).value
+}
+
+const lobbyService = interpret(lobbyMachine.withContext(initialContext))
     .onTransition(state => {
-        console.log(state.value)
+        console.log('curr state: ', state.value, state.context)
+
+        console.log(state.matches(''));
+
+        switch (state.value) {
+            // case 'startscreen': 
+            case 'room': enterRoom()
+                break;
+            case 'startscreen': updateUiShowStartScreen()
+                break;
+        }
+
     })
     .start();
 
+function updateUiShowRoom(){
+    console.log('show room')
+    joinContainer.classList.add("hidden");
+    chatContainer.classList.remove("hidden")
+}
 
-document.getElementById('openBtn').addEventListener('click', function () {
-    // service.send('OPEN');
+function updateUiShowStartScreen(){
+    console.log('show startscreen')
+    joinContainer.classList.remove("hidden");
+    chatContainer.classList.add("hidden")
+}
 
-    // In case your front is not served from the same domain as your server, you have to pass the URL of your server.
-    // const socket = io();
-    
+function enterRoom(){    
+    updateUiShowRoom();
+    startConnection();  
+}
+
+function startConnection(){
+
+    // In case your front is not served from the same domain as your server, 
+    // you have to pass the URL of your server. instead of const socket = io();
     const socket = io("http://127.0.0.1:5000/");
 
-    // GOOD
     socket.on("connect", () => {
         // ...
         console.log("connect connect connect")
-
-        socket.send('Xstate client has connected or sth')
+        
+        // socket.send('Xstate client has connected or sth')
+        // socket.emit('my event', {data: 'I\'m connected!'});        
     });
-  
+
     socket.on("data", () => { /* ... */ });
+}
 
 
-    // var socket = io("http://127.0.0.1:5000/");
-    // socket.on('connect', function() {
-    //     socket.emit('my event', {data: 'I\'m connected!'});
-    // });
-
+enterChatSubmitBtn.addEventListener('click', function () {
+    lobbyService.send('enter')
 });
-const app = document.getElementById('#root')
+
+leaveRoomBtn.addEventListener('click', function () {
+    lobbyService.send('back')
+});
+
+usernameInp.addEventListener("input", (event) => {
+    lobbyService.send({
+        type: "name.change",
+        value: (event.target as HTMLInputElement).value
+    });
+});
+
+roomSel.addEventListener("change", (event) => {
+    lobbyService.send({
+        type: "select.room",
+        value: (<HTMLInputElement>event.target).value
+    });
+});
+
+
