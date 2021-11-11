@@ -1,3 +1,4 @@
+from typing import List
 from flask import Flask
 from flask_socketio import SocketIO, send, emit
 
@@ -10,30 +11,35 @@ socketio = SocketIO(app,
         "http://localhost:8080"],
     logger=True,
     engineio_logger=True)
+class User:
+    def __init__(self, socket_id, name):
+        self._socket_id = socket_id # socket id from the client
+        self._name = name # name entered by the user in the client UI
+        self._room_id = None 
 
-@socketio.on('connection')
-def handleConnection(msg):
-    print('server got connection with msg:', msg)
-    print('server has id', socketio.id)
+    def set_room(self, room_id):
+        self._room_id = room_id
 
-# server-side event handler for an unnamed event:
-@socketio.on('message')
-def handle_message(data):    
-    print('received message: ' + data)
-    send(data, broadcast=True)
-
-# The above example uses string messages. Another type of unnamed events use JSON data:
-@socketio.on('json')
-def handle_json(json):
-    print('received json: ' + str(json))
+class Room:
+    def __init__(self, id):
+        self._id = id # incrementing by one for each new room
+        self._number_players = 0 
 
 
-# The most flexible type of event uses custom event names. 
-# The message data for these events can be 
-# string, bytes, int, or JSON:
-@socketio.on('my event')
-def handle_my_custom_event(json):
-    print('received json: ' + str(json))
+rooms: List[Room] = []
+users: List[User] = []
+
+@socketio.on('join')
+def handle_join(json):
+    print('received json!!!: ' + str(json))
+    print('received user id: ' + json["userid"])
+    print('received user username: ' + json["username"])
+    newUser = User(json["userid"], json["username"])
+    users.append(newUser)
+
+    print("printing all the connected users")
+    for user in users:
+        print(user._socket_id, user._name)
 
 if __name__ == '__main__':
     socketio.run(app)

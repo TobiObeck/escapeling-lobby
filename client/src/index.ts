@@ -1,6 +1,6 @@
 import './styles/index.scss'
 import { Machine, interpret } from 'xstate'
-import { lobbyMachine, LobbySchema } from './ts/LobbyMachine'
+import { lobbyMachine, LobbySchema, LobbyContext } from './ts/LobbyMachine'
 
 // interactable UI elements
 const usernameInp = document.querySelector("#username-input");
@@ -12,9 +12,10 @@ const leaveRoomBtn = document.getElementById("leave-room-btn")
 const joinContainer = document.getElementById("join-container")
 const chatContainer = document.getElementById("chat-container")
 
-const initialContext = {
+const initialContext: LobbyContext = {
     username: "",
-    lobbyname: (roomSel as HTMLInputElement).value
+    lobbyname: (roomSel as HTMLInputElement).value,
+    connection: null
 }
 
 const lobbyService = interpret(lobbyMachine.withContext(initialContext))
@@ -46,29 +47,6 @@ function updateUiShowStartScreen(){
     chatContainer.classList.add("hidden")
 }
 
-// function enterRoom(){    
-    
-//     // startConnection();  
-// }
-
-// function startConnection(){
-
-//     // In case your front is not served from the same domain as your server, 
-//     // you have to pass the URL of your server. instead of const socket = io();
-//     const socket = io("http://127.0.0.1:5000/");
-
-//     socket.on("connect", () => {
-//         // ...
-//         console.log("connect connect connect")
-
-//         console.log('client has socketid:', socket.id);
-        
-//         socket.send('client has connected with id: ' + socket.id)
-//         socket.emit('my event', {data: 'client has connected with id: ' + socket.id});        
-//     });
-
-//     socket.on("data", () => { /* ... */ });
-// }
 
 enterChatSubmitBtn.addEventListener('click', function () {
     lobbyService.send('enter')
