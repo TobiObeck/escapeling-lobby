@@ -2,9 +2,6 @@ import './styles/index.scss'
 import { Machine, interpret } from 'xstate'
 import { lobbyMachine, LobbySchema } from './ts/LobbyMachine'
 
-// ES6 import or TypeScript
-import { io } from "socket.io-client";
-
 // interactable UI elements
 const usernameInp = document.querySelector("#username-input");
 const roomSel = document.querySelector("#room-select");
@@ -21,14 +18,14 @@ const initialContext = {
 }
 
 const lobbyService = interpret(lobbyMachine.withContext(initialContext))
-    .onTransition(state => {
+    .onTransition(function(state){
         console.log('curr state: ', state.value, state.context)
 
         console.log(state.matches(''));
 
         switch (state.value) {
             // case 'startscreen': 
-            case 'room': enterRoom()
+            case 'room': updateUiShowRoom()
                 break;
             case 'startscreen': updateUiShowStartScreen()
                 break;
@@ -49,28 +46,29 @@ function updateUiShowStartScreen(){
     chatContainer.classList.add("hidden")
 }
 
-function enterRoom(){    
-    updateUiShowRoom();
-    startConnection();  
-}
+// function enterRoom(){    
+    
+//     // startConnection();  
+// }
 
-function startConnection(){
+// function startConnection(){
 
-    // In case your front is not served from the same domain as your server, 
-    // you have to pass the URL of your server. instead of const socket = io();
-    const socket = io("http://127.0.0.1:5000/");
+//     // In case your front is not served from the same domain as your server, 
+//     // you have to pass the URL of your server. instead of const socket = io();
+//     const socket = io("http://127.0.0.1:5000/");
 
-    socket.on("connect", () => {
-        // ...
-        console.log("connect connect connect")
+//     socket.on("connect", () => {
+//         // ...
+//         console.log("connect connect connect")
+
+//         console.log('client has socketid:', socket.id);
         
-        // socket.send('Xstate client has connected or sth')
-        // socket.emit('my event', {data: 'I\'m connected!'});        
-    });
+//         socket.send('client has connected with id: ' + socket.id)
+//         socket.emit('my event', {data: 'client has connected with id: ' + socket.id});        
+//     });
 
-    socket.on("data", () => { /* ... */ });
-}
-
+//     socket.on("data", () => { /* ... */ });
+// }
 
 enterChatSubmitBtn.addEventListener('click', function () {
     lobbyService.send('enter')
@@ -93,5 +91,3 @@ roomSel.addEventListener("change", (event) => {
         value: (<HTMLInputElement>event.target).value
     });
 });
-
-
