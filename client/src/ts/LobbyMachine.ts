@@ -15,13 +15,17 @@ type LobbyEvent =
     | { type: "back" }
     | { type: "name.change", value: string }
     | { type: "select.room", value: string }
+    | { type: "msg.change", value: string }
+    | { type: "send.msg", value: string }
 
 
 // The context (extended state) of the machine
 export interface LobbyContext {
     username: string,
     lobbyname: string,
-    connection: null | ReturnType<typeof io>
+    io: null | ReturnType<typeof io>,
+    msg: string,
+    roomId: null | string
 }
 
 export const lobbyMachine = Machine<LobbyContext, LobbySchema, LobbyEvent>({
@@ -29,7 +33,9 @@ export const lobbyMachine = Machine<LobbyContext, LobbySchema, LobbyEvent>({
     context: {
         username: "",
         lobbyname: "",
-        connection: null
+        io: null,
+        msg: "",
+        roomId: null
     },
     initial: "startscreen",
     states: {
@@ -40,16 +46,39 @@ export const lobbyMachine = Machine<LobbyContext, LobbySchema, LobbyEvent>({
                     target: "room",
                     actions: [
                         assign({
-                            connection: (ctx, event) => {
-
+                            io: (ctx, event) => {
+                                
                                 const socket = io("http://127.0.0.1:5000/");
 
-                                socket.on("connect", () => {
+                                // const receiveRoomIdCallback = function(roomId: string){
+                                //     assign({
+                                //         roomId: roomId
+                                //     })
+                                // }
+                                
+                                socket.on("connect", function(){
+
+                                    console.log("args")
+
                                     socket.emit('join', {
                                         userid: socket.id,
-                                        username: ctx.username
-                                    });        
+                                        username: ctx.username,
+                                        // roomId: arguments[0]
+                                    });
                                 });
+
+                                socket.on("user-connected", (arg) => {
+
+                                    console.log("user connected!!!", arg)
+                                });
+
+                                // socket.on("disconnect", () => {
+                                //     console.log(socket.connected); // false
+                                // });
+
+                                // TODO handle connection error
+                                // what should happen if the connection
+                                // is not possible (e.g. server is not running)?
 
                                 return socket
                             }
@@ -75,7 +104,28 @@ export const lobbyMachine = Machine<LobbyContext, LobbySchema, LobbyEvent>({
         room: {
             on: {
                 back: "startscreen",
+                "msg.change": {
+                    actions: [
+                        assign({
+                            msg: (ctx, event) => {                                
+                                return event.value
+                            }
+                        })]
+                },
+                "send.msg": {
+                    actions: ['sendMessage']
+                }
             },
         },
     },
+},
+{
+    actions: {        
+        sendMessage: (ctx, event) => {
+            ctx.io.emit('send_message', {
+                "username": ctx.username,
+                "msg": ctx.msg
+            })
+        }
+    }
 });
