@@ -19,7 +19,8 @@ const initialContext: LobbyContext = {
     username: usernameInp.value,
     lobbyname: roomSel.value,
     io: null,
-    msg: ''
+    msg: '',
+    roomId: null
 }
 
 const lobbyService = interpret(lobbyMachine.withContext(initialContext))
