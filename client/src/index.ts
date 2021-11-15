@@ -3,19 +3,23 @@ import { Machine, interpret } from 'xstate'
 import { lobbyMachine, LobbySchema, LobbyContext } from './ts/LobbyMachine'
 
 // interactable UI elements
-const usernameInp = document.querySelector("#username-input");
-const roomSel = document.querySelector("#room-select");
-const enterChatSubmitBtn = document.getElementById("enterChatSubmitBtn")
-const leaveRoomBtn = document.getElementById("leave-room-btn")
+const usernameInp = (document.querySelector("#username-input") as HTMLInputElement)
+const roomSel = (document.querySelector("#room-select") as HTMLSelectElement)
+const enterChatSubmitBtn = (document.getElementById("enterChatSubmitBtn")  as HTMLButtonElement)
+const leaveRoomBtn = (document.getElementById("leave-room-btn") as HTMLButtonElement)
 
 // content container
-const joinContainer = document.getElementById("join-container")
-const chatContainer = document.getElementById("chat-container")
+const joinContainer = (document.getElementById("join-container") as HTMLDivElement)
+const chatContainer = (document.getElementById("chat-container") as HTMLDivElement)
+
+const msgInp = (document.getElementById("msg") as HTMLInputElement)
+const msgSendBtn = (document.getElementById("msg-send") as HTMLButtonElement)
 
 const initialContext: LobbyContext = {
-    username: "",
-    lobbyname: (roomSel as HTMLInputElement).value,
-    connection: null
+    username: usernameInp.value,
+    lobbyname: roomSel.value,
+    io: null,
+    msg: ''
 }
 
 const lobbyService = interpret(lobbyMachine.withContext(initialContext))
@@ -68,4 +72,15 @@ roomSel.addEventListener("change", (event) => {
         type: "select.room",
         value: (<HTMLInputElement>event.target).value
     });
+});
+
+msgInp.addEventListener("input", (event) => {
+    lobbyService.send({
+        type: "msg.change",
+        value: (event.target as HTMLInputElement).value
+    });
+});
+
+msgSendBtn.addEventListener('click', function () {
+    lobbyService.send('send.msg')
 });
