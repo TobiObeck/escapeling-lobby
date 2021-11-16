@@ -1,4 +1,4 @@
-import { Machine, assign, send } from "xstate";
+import { Machine, assign, send, sendParent } from "xstate";
 // ES6 import or TypeScript
 import { io } from "socket.io-client";
 
@@ -49,10 +49,7 @@ export const lobbyMachine = Machine<LobbyContext, LobbySchema, LobbyEvent>({
                 // when in startscreen and enter event is fired
                 enter: {
                     cond: (ctx) => ctx.username != "" && ctx.lobbyname != "",
-                    target: "connecting", // target state
-                    actions: [
-                        'tryConnecting'
-                    ]
+                    target: "connecting", // target state             
                 },
                 // on name.change event, update context state username
                 // with username from UI
@@ -82,9 +79,14 @@ export const lobbyMachine = Machine<LobbyContext, LobbySchema, LobbyEvent>({
                     const socket = io("http://127.0.0.1:5000/");
                                         
                     socket.on("connect", function(){          
-                        console.log('socket io connect received!!')
-                        
+                        console.log('socket io connect received!!', socket.id)
+
                         callback('connect')
+                        //Parent-to-child action via the
+                        // send(EVENT, { to: 'someChildId' }) 
+                        // send('connect')
+                        //Child-to-parent action. via 
+                        // sendParent('connect')
                     });
                     
                     socket.on("disconnect", () => {
@@ -104,10 +106,26 @@ export const lobbyMachine = Machine<LobbyContext, LobbySchema, LobbyEvent>({
             }
         },
         errorscreen: {
-            entry: () => document.write('error lol')
+            entry: () => {
+                console.log('EROROR EROROR EROROR EROROR EROROR ')
+                document.write('error lol')
+            }
         },
         room: {
-            on: {
+            entry: [
+                (ctx, event) => {
+                    ctx.io.emit('join', {
+                        userid: ctx.io.id,
+                        username: ctx.username,
+                        // roomId: arguments[0]
+                    });
+
+                    ctx.io.on("user-connected", (arg) => {
+                        console.log("user connected!!!", arg)
+                    });
+                }
+            ],
+            on: {                
                 back: "startscreen",
                 "msg.change": {
                     actions: [
