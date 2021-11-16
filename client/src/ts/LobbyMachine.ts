@@ -74,39 +74,34 @@ export const lobbyMachine = Machine<LobbyContext, LobbySchema, LobbyEvent>({
         connecting: {
             invoke: {
                 id: 'connecter',
-                src: (ctx, event) => (callback, onReceive) => {
-                                    
+                src: (ctx, event) => {
                     const socket = io("http://127.0.0.1:5000/");
-                                        
-                    socket.on("connect", function(){          
-                        console.log('socket io connect received!!', socket.id)
 
-                        callback('connect')
-                        //Parent-to-child action via the
-                        // send(EVENT, { to: 'someChildId' }) 
-                        // send('connect')
-                        //Child-to-parent action. via 
-                        // sendParent('connect')
-                    });
-                    
-                    socket.on("disconnect", () => {
-                        console.log(socket.connected); // false
-                        callback('error')
-                        // document.write('error lol')
+                    return new Promise((resolve, reject) => {
+                        socket.on("connect", function(){
+                            if(socket.id != null){
+                                resolve(socket)
+                            }                            
+                            else { // This else is never reached.
+                                // Either it connects and has an id or it doesn't at all
+                                reject('some connection error, lol');
+                            }
+                        })
                     });
                 },
-            },
-            on: {
-                connect: {
-                    target: 'room'
+                onDone: {
+                    target: 'room',
+                    actions: assign({ io: (ctx, event) => event.data })
                 },
-                error: {
-                    target: 'errorscreen'
-                }                
+                onError: {
+                    target: 'errorscreen',
+                    // actions: assign({ error: (context, event) => event.data })
+                }             
             }
         },
         errorscreen: {
             entry: () => {
+                // TODO currently this state is never reached
                 console.log('EROROR EROROR EROROR EROROR EROROR ')
                 document.write('error lol')
             }
@@ -143,41 +138,8 @@ export const lobbyMachine = Machine<LobbyContext, LobbySchema, LobbyEvent>({
     },
 },
 {
-    actions: {        
-        // tryConnecting: assign({
-        //     io: (ctx, event) => {
-                
-        //         const socket = io("http://127.0.0.1:5000/");
-                
-        //         socket.on("connect", function(){
-                    
-
-        //             console.log("args")
-
-        //             socket.emit('join', {
-        //                 userid: socket.id,
-        //                 username: ctx.username,
-        //                 // roomId: arguments[0]
-        //             });
-        //         });
-
-        //         socket.on("user-connected", (arg) => {
-
-        //             console.log("user connected!!!", arg)
-        //         });
-
-
-        //         // TODO handle connection error
-        //         // what should happen if the connection
-        //         // is not possible (e.g. server is not running)?
-
-        //         return socket
-        //     }
-        // }),
+    actions: {
         sendMessage: (ctx, event) => {
-
-            console.log('asd')
-
             ctx.io.emit('send_message', {
                 "username": ctx.username,
                 "msg": ctx.msg
