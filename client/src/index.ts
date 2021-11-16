@@ -43,6 +43,9 @@ const lobbyService = interpret(lobbyMachine.withContext(initialContext))
     })
     .start();
 
+// @ts-ignore
+document.debugLobbyService = lobbyService
+
 function updateUiShowRoom(){
     console.log('show room')
     joinContainer.classList.add("hidden");

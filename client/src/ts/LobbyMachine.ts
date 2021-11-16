@@ -1,11 +1,12 @@
-import { Machine, assign } from "xstate";
+import { Machine, assign, send } from "xstate";
 // ES6 import or TypeScript
 import { io } from "socket.io-client";
 
 export interface LobbySchema {
     states: {
         startscreen: {};
-        connecting: {},
+        errorscreen: {};
+        connecting: {};
         room: {};
     };
 }
@@ -18,6 +19,8 @@ type LobbyEvent =
     | { type: "select.room", value: string }
     | { type: "msg.change", value: string }
     | { type: "send.msg", value: string }
+    | { type: "connect" }
+    | { type: "error" }
 
 
 // The context (extended state) of the machine
@@ -72,17 +75,36 @@ export const lobbyMachine = Machine<LobbyContext, LobbySchema, LobbyEvent>({
             },
         },
         connecting: {
-            // always: [
-            //     { 
-            //         cond: (ctx) => ctx.io != null && ctx.io.id != null,
-            //         target: 'room',
-            //         actions: [
-            //             () => {
-            //                 console.log('currently in connecting state lol')
-            //             }
-            //         ]
-            //     }
-            // ],            
+            invoke: {
+                id: 'connecter',
+                src: (ctx, event) => (callback, onReceive) => {
+                                    
+                    const socket = io("http://127.0.0.1:5000/");
+                                        
+                    socket.on("connect", function(){          
+                        console.log('socket io connect received!!')
+                        
+                        callback('connect')
+                    });
+                    
+                    socket.on("disconnect", () => {
+                        console.log(socket.connected); // false
+                        callback('error')
+                        // document.write('error lol')
+                    });
+                },
+            },
+            on: {
+                connect: {
+                    target: 'room'
+                },
+                error: {
+                    target: 'errorscreen'
+                }                
+            }
+        },
+        errorscreen: {
+            entry: () => document.write('error lol')
         },
         room: {
             on: {
@@ -104,39 +126,36 @@ export const lobbyMachine = Machine<LobbyContext, LobbySchema, LobbyEvent>({
 },
 {
     actions: {        
-        tryConnecting: assign({
-            io: (ctx, event) => {
+        // tryConnecting: assign({
+        //     io: (ctx, event) => {
                 
-                const socket = io("http://127.0.0.1:5000/");
+        //         const socket = io("http://127.0.0.1:5000/");
                 
-                socket.on("connect", function(){
+        //         socket.on("connect", function(){
                     
 
-                    console.log("args")
+        //             console.log("args")
 
-                    socket.emit('join', {
-                        userid: socket.id,
-                        username: ctx.username,
-                        // roomId: arguments[0]
-                    });
-                });
+        //             socket.emit('join', {
+        //                 userid: socket.id,
+        //                 username: ctx.username,
+        //                 // roomId: arguments[0]
+        //             });
+        //         });
 
-                socket.on("user-connected", (arg) => {
+        //         socket.on("user-connected", (arg) => {
 
-                    console.log("user connected!!!", arg)
-                });
+        //             console.log("user connected!!!", arg)
+        //         });
 
-                // socket.on("disconnect", () => {
-                //     console.log(socket.connected); // false
-                // });
 
-                // TODO handle connection error
-                // what should happen if the connection
-                // is not possible (e.g. server is not running)?
+        //         // TODO handle connection error
+        //         // what should happen if the connection
+        //         // is not possible (e.g. server is not running)?
 
-                return socket
-            }
-        }),
+        //         return socket
+        //     }
+        // }),
         sendMessage: (ctx, event) => {
 
             console.log('asd')
