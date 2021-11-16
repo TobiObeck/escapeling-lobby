@@ -5,7 +5,7 @@ import { lobbyMachine, LobbySchema, LobbyContext } from './ts/LobbyMachine'
 // interactable UI elements
 const usernameInp = (document.querySelector("#username-input") as HTMLInputElement)
 const roomSel = (document.querySelector("#room-select") as HTMLSelectElement)
-const enterChatSubmitBtn = (document.getElementById("enterChatSubmitBtn")  as HTMLButtonElement)
+const joinRoomBtn = (document.getElementById("join-room-btn")  as HTMLButtonElement)
 const leaveRoomBtn = (document.getElementById("leave-room-btn") as HTMLButtonElement)
 
 // content container
@@ -15,6 +15,9 @@ const chatContainer = (document.getElementById("chat-container") as HTMLDivEleme
 const msgInp = (document.getElementById("msg") as HTMLInputElement)
 const msgSendBtn = (document.getElementById("msg-send") as HTMLButtonElement)
 
+// TODO replace with factory function
+// so that only dynamic context value need to be passed
+// https://xstate.js.org/docs/guides/context.html#initial-context
 const initialContext: LobbyContext = {
     username: usernameInp.value,
     lobbyname: roomSel.value,
@@ -52,15 +55,18 @@ function updateUiShowStartScreen(){
     chatContainer.classList.add("hidden")
 }
 
-
-enterChatSubmitBtn.addEventListener('click', function () {
+// on join room button click, try to connect and enter room
+joinRoomBtn.addEventListener('click', function () {
     lobbyService.send('enter')
 });
 
+// on leave room button click, try disconnect and leave the room
 leaveRoomBtn.addEventListener('click', function () {
     lobbyService.send('back')
 });
 
+// on inputting text, update the context state 
+// (saving internal var in statemachine)
 usernameInp.addEventListener("input", (event) => {
     lobbyService.send({
         type: "name.change",
@@ -68,6 +74,8 @@ usernameInp.addEventListener("input", (event) => {
     });
 });
 
+// on changing a room in the select dropw down, update the context state 
+// (saving internal var in statemachine)
 roomSel.addEventListener("change", (event) => {
     lobbyService.send({
         type: "select.room",
@@ -75,6 +83,8 @@ roomSel.addEventListener("change", (event) => {
     });
 });
 
+// on inputting text, update the context state 
+// (saving internal var in statemachine)
 msgInp.addEventListener("input", (event) => {
     lobbyService.send({
         type: "msg.change",
@@ -82,6 +92,15 @@ msgInp.addEventListener("input", (event) => {
     });
 });
 
+// on enter, send chat message
+msgInp.addEventListener('keydown', (event) => {
+    const ENTER_KEY = 'Enter'
+    if (event.key === ENTER_KEY || event.code === ENTER_KEY) {
+        lobbyService.send('send.msg')
+    }
+})
+
+// on send button click, send chat message
 msgSendBtn.addEventListener('click', function () {
     lobbyService.send('send.msg')
 });

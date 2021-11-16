@@ -85,7 +85,7 @@ def on_leave(data):
 
 @socketio.on('send_message')
 def handle_send_message(json):
-    print("handle_send_message()")
+    print("handle_send_message()", json)
     # get room of user
 
     # store message to room chat history
