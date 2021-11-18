@@ -29,7 +29,8 @@ export interface LobbyContext {
     lobbyname: string,
     io: null | ReturnType<typeof io>,
     msg: string,
-    roomId: null | string
+    roomId: null | string,
+    chatHistory: Array<string>
 }
 
 export const lobbyMachine = Machine<LobbyContext, LobbySchema, LobbyEvent>({
@@ -39,7 +40,8 @@ export const lobbyMachine = Machine<LobbyContext, LobbySchema, LobbyEvent>({
         lobbyname: "",
         io: null,
         msg: "",
-        roomId: null
+        roomId: null,
+        chatHistory: []
     },
     initial: "startscreen",
     states: {
@@ -92,22 +94,13 @@ export const lobbyMachine = Machine<LobbyContext, LobbySchema, LobbyEvent>({
                 onDone: {
                     target: 'room',
                     actions: assign({ io: (ctx, event) => event.data })
-                },
-                onError: {
-                    target: 'errorscreen',
-                    // actions: assign({ error: (context, event) => event.data })
-                }             
-            }
-        },
-        errorscreen: {
-            entry: () => {
-                // TODO currently this state is never reached
-                console.log('EROROR EROROR EROROR EROROR EROROR ')
-                document.write('error lol')
-            }
-        },
-        room: {
-            entry: [
+                }
+                // onError: {
+                //     target: 'errorscreen',
+                //     // actions: assign({ error: (context, event) => event.data })
+                // }             
+            },
+            exit: [
                 (ctx, event) => {
                     ctx.io.emit('join', {
                         userid: ctx.io.id,
@@ -120,6 +113,40 @@ export const lobbyMachine = Machine<LobbyContext, LobbySchema, LobbyEvent>({
                     });
                 }
             ],
+        },
+        errorscreen: {
+            entry: () => {
+                // TODO currently this state is never reached
+                console.log('EROROR EROROR EROROR EROROR EROROR ')
+                document.write('error lol')
+            }
+        },
+        room: {            
+            invoke: {
+                id: 'msghandler',
+                src: (ctx, event) => {
+                    return new Promise((resolve, reject) => {
+                        ctx.io.on('broadcast-message', function(args){
+                            const {username, msg} = args
+                            const formattedMsg = `${username}: ${msg}`
+                            
+                            if(formattedMsg  != null){
+                                // console.log('formatted', formattedMsg)
+                                resolve(formattedMsg)
+                            } 
+                        })
+                    });
+                },
+                onDone: {
+                    actions: assign({
+                        chatHistory: (ctx, event) => {  
+                            console.log('chathsitory event data', event.data)                 
+                            return [...ctx.chatHistory, event.data]
+                        }
+                    }),
+                    target: 'room',  // leads to problem of re-registering io.on callback
+                }
+            },
             on: {                
                 back: "startscreen",
                 "msg.change": {
@@ -141,6 +168,7 @@ export const lobbyMachine = Machine<LobbyContext, LobbySchema, LobbyEvent>({
     actions: {
         sendMessage: (ctx, event) => {
             ctx.io.emit('send_message', {
+                "userId": ctx.io.id,
                 "username": ctx.username,
                 "msg": ctx.msg
             })

@@ -24,13 +24,14 @@ def get_free_room():
     is_every_room_full = True
     result_room = None
 
+    # check if rooms exist and are empty
     for room in rooms:
-        print("iterating", room)
         if room.is_free():
             is_every_room_full = False
             result_room = room
             break
 
+    # create new room
     if is_every_room_full:
         room_id = str(uuid.uuid4())
         new_room = Room(id=room_id,
@@ -39,6 +40,11 @@ def get_free_room():
         result_room = new_room
 
     return result_room
+
+def find_room_of_user(userId: str):
+    for room in rooms:
+        if room.is_user_present(userId):
+            return room
 
 
 @socketio.on('join')
@@ -53,19 +59,15 @@ def handle_join(json):
     
     # handle room assignment and join
     free_room = get_free_room()
-    print("did get room??", free_room)
     join_room(free_room.get_id())
-    
-    
-    emit("user-connected", json["username"] + ' has entered the room.', to=free_room.get_id())
+    free_room.assign_user(newUser)
 
-    # send room_id to client
-    # return "LOLOLOLL" # free_room.get_id()
-
+    # random stuff for testing
+    emit("user-connected", json["username"] + ' has entered the room.', room=free_room.get_id())
 
     print("printing all the connected users")
     for user in users:
-        print(user._socket_id, user._name)
+        print(user._user_socket_id, user._name)
 
 """
 @socketio.on('join')
@@ -86,12 +88,26 @@ def on_leave(data):
 @socketio.on('send_message')
 def handle_send_message(json):
     print("handle_send_message()", json)
+    
     # get room of user
+    chat_room = find_room_of_user(json['userId'])
+
+    print("rooms", rooms, len(rooms))
+    print("chat_room", chat_room)
 
     # store message to room chat history
+    chat_room.append_to_chat_history(json['userId'], json['msg'])
 
     # send message to all users within that room    
-    # socketio.sockets.in(room)
+    
+    payload = {
+        "username": json["username"],
+        "msg": json["msg"]
+    }
+
+    print("payload", payload)
+    
+    emit("broadcast-message", payload, room=chat_room.get_id())
 
 
 if __name__ == '__main__':

@@ -1,29 +1,44 @@
+from typing import Dict, List
 import uuid
+
+# from user import User
 
 class Room:
     def __init__(self, id, max_players):
         self._id = id # incrementing by one for each new room
-        self._number_players = 0 
-        self._max_players = max_players
-        self._chat_history = [[], []]  # mapping from user id to message (list keeps order of send messages)
+        self._players = []
+        self._max_players = max_players        
+        self._chat_history: List[Dict] = []
 
     def is_free(self):        
-        if self._number_players >= self._max_players:
+        if len(self._players) >= self._max_players:
             free = False
         else:
             free = True
         
         return free
 
-    def add_player(self):
-        self._number_players += 1
-
     def get_id(self):
         return self._id
 
-    def append_to_chat_history(self, user, message):
-        self._chat_history[0].append(user)
-        self._chat_history[1].append(message)
+    def append_to_chat_history(self, userId, message):
+        self._chat_history.append({
+            userId: userId,
+            message: message
+        })
 
     def get_chat_history(self):
         return self._chat_history
+
+    def assign_user(self, user):
+        self._players.append(user)
+
+    def is_user_present(self, userId: str):
+        for room_player in self._players:
+            print('room_player_id', room_player.get_id())
+            print('message_player_id', userId)
+            if room_player.get_id() == userId:
+                return True
+        
+        return False
+

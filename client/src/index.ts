@@ -23,7 +23,8 @@ const initialContext: LobbyContext = {
     lobbyname: roomSel.value,
     io: null,
     msg: '',
-    roomId: null
+    roomId: null,
+    chatHistory: []
 }
 
 const lobbyService = interpret(lobbyMachine.withContext(initialContext))
@@ -34,7 +35,7 @@ const lobbyService = interpret(lobbyMachine.withContext(initialContext))
 
         switch (state.value) {
             // case 'startscreen': 
-            case 'room': updateUiShowRoom()
+            case 'room': updateUiShowRoom(state.context.chatHistory)
                 break;
             case 'startscreen': updateUiShowStartScreen()
                 break;
@@ -46,10 +47,12 @@ const lobbyService = interpret(lobbyMachine.withContext(initialContext))
 // @ts-ignore
 document.debugLobbyService = lobbyService
 
-function updateUiShowRoom(){
+function updateUiShowRoom(chatHistory: Array<string>){
     console.log('show room')
     joinContainer.classList.add("hidden");
     chatContainer.classList.remove("hidden")
+
+    console.log('chatHistory', chatHistory)
 }
 
 function updateUiShowStartScreen(){
