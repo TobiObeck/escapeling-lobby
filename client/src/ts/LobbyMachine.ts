@@ -1,6 +1,7 @@
-import { Machine, assign, send, sendParent } from "xstate";
+import { Machine, assign } from "xstate";
 // ES6 import or TypeScript
 import { io } from "socket.io-client";
+import { updateUiShowRoom, updateUiShowStartScreen } from "./updateUI";
 
 export interface LobbySchema {
     states: {
@@ -47,6 +48,11 @@ export const lobbyMachine = Machine<LobbyContext, LobbySchema, LobbyEvent>({
     states: {
         // start screen state
         startscreen: {
+            entry: [
+                (ctx, _) => {
+                    updateUiShowStartScreen()
+                },
+            ],
             on: {
                 // when in startscreen and enter event is fired
                 enter: {
@@ -121,7 +127,12 @@ export const lobbyMachine = Machine<LobbyContext, LobbySchema, LobbyEvent>({
                 document.write('error lol')
             }
         },
-        room: {            
+        room: {
+            entry: [
+                (ctx, _) => {
+                    updateUiShowRoom(ctx.chatHistory)
+                }
+            ],
             invoke: {
                 id: 'msghandler',
                 src: (ctx, event) => {

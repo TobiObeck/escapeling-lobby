@@ -1,16 +1,12 @@
 import './styles/index.scss'
-import { Machine, interpret } from 'xstate'
-import { lobbyMachine, LobbySchema, LobbyContext } from './ts/LobbyMachine'
+import { interpret } from 'xstate'
+import { lobbyMachine, LobbyContext } from './ts/LobbyMachine'
 
 // interactable UI elements
 const usernameInp = (document.querySelector("#username-input") as HTMLInputElement)
 const roomSel = (document.querySelector("#room-select") as HTMLSelectElement)
 const joinRoomBtn = (document.getElementById("join-room-btn")  as HTMLButtonElement)
 const leaveRoomBtn = (document.getElementById("leave-room-btn") as HTMLButtonElement)
-
-// content container
-const joinContainer = (document.getElementById("join-container") as HTMLDivElement)
-const chatContainer = (document.getElementById("chat-container") as HTMLDivElement)
 
 const msgInp = (document.getElementById("msg") as HTMLInputElement)
 const msgSendBtn = (document.getElementById("msg-send") as HTMLButtonElement)
@@ -31,35 +27,15 @@ const lobbyService = interpret(lobbyMachine.withContext(initialContext))
     .onTransition(function(state){
         console.log('curr state: ', state.value, state.context)
 
-        console.log(state.matches(''));
-
         switch (state.value) {
-            // case 'startscreen': 
-            case 'room': updateUiShowRoom(state.context.chatHistory)
-                break;
-            case 'startscreen': updateUiShowStartScreen()
-                break;
+            // case 'startscreen':
+            //     break; 
         }
-
     })
     .start();
 
 // @ts-ignore
 document.debugLobbyService = lobbyService
-
-function updateUiShowRoom(chatHistory: Array<string>){
-    console.log('show room')
-    joinContainer.classList.add("hidden");
-    chatContainer.classList.remove("hidden")
-
-    console.log('chatHistory', chatHistory)
-}
-
-function updateUiShowStartScreen(){
-    console.log('show startscreen')
-    joinContainer.classList.remove("hidden");
-    chatContainer.classList.add("hidden")
-}
 
 // on join room button click, try to connect and enter room
 joinRoomBtn.addEventListener('click', function () {
