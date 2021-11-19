@@ -3,13 +3,13 @@ import { interpret } from 'xstate'
 import { lobbyMachine, LobbyContext } from './ts/LobbyMachine'
 
 // interactable UI elements
-const usernameInp = (document.querySelector("#username-input") as HTMLInputElement)
-const roomSel = (document.querySelector("#room-select") as HTMLSelectElement)
-const joinRoomBtn = (document.getElementById("join-room-btn")  as HTMLButtonElement)
-const leaveRoomBtn = (document.getElementById("leave-room-btn") as HTMLButtonElement)
+const usernameInp = (document.querySelector('#username-input') as HTMLInputElement)
+const roomSel = (document.querySelector('#room-select') as HTMLSelectElement)
+const joinRoomBtn = (document.getElementById('join-room-btn')  as HTMLButtonElement)
+const leaveRoomBtn = (document.getElementById('leave-room-btn') as HTMLButtonElement)
 
-const msgInp = (document.getElementById("msg") as HTMLInputElement)
-const msgSendBtn = (document.getElementById("msg-send") as HTMLButtonElement)
+const msgInp = (document.getElementById('msg') as HTMLInputElement)
+const msgSendBtn = (document.getElementById('msg-send') as HTMLButtonElement)
 
 // TODO replace with factory function
 // so that only dynamic context value need to be passed
@@ -49,27 +49,27 @@ leaveRoomBtn.addEventListener('click', function () {
 
 // on inputting text, update the context state 
 // (saving internal var in statemachine)
-usernameInp.addEventListener("input", (event) => {
+usernameInp.addEventListener('input', (event) => {
     lobbyService.send({
-        type: "name.change",
+        type: 'name.change',
         value: (event.target as HTMLInputElement).value
     });
 });
 
 // on changing a room in the select dropw down, update the context state 
 // (saving internal var in statemachine)
-roomSel.addEventListener("change", (event) => {
+roomSel.addEventListener('change', (event) => {
     lobbyService.send({
-        type: "select.room",
+        type: 'select.room',
         value: (<HTMLInputElement>event.target).value
     });
 });
 
 // on inputting text, update the context state 
 // (saving internal var in statemachine)
-msgInp.addEventListener("input", (event) => {
+msgInp.addEventListener('input', (event) => {
     lobbyService.send({
-        type: "msg.change",
+        type: 'msg.change',
         value: (event.target as HTMLInputElement).value
     });
 });
