@@ -2,7 +2,10 @@ import { Machine, assign } from 'xstate';
 // ES6 import or TypeScript
 import { io } from 'socket.io-client';
 import { 
-    updateUiShowRoom, updateUiShowStartScreen, updateUiChatMessage
+    updateUiShowRoom,
+    updateUiShowStartScreen,
+    updateUiChatMessage,
+    updateUiClearChatMessageInput
 } from './updateUI';
 
 export interface LobbySchema {
@@ -57,7 +60,7 @@ export const lobbyMachine = Machine<LobbyContext, LobbySchema, LobbyEvent>({
             ],
             on: {
                 // when in startscreen and enter event is fired
-                enter: {
+                'enter': {
                     cond: (ctx) => ctx.username != '' && ctx.lobbyname != '',
                     target: 'connecting', // target state             
                 },
@@ -132,7 +135,7 @@ export const lobbyMachine = Machine<LobbyContext, LobbySchema, LobbyEvent>({
         room: {
             entry: [
                 (ctx, _) => {
-                    updateUiShowRoom(ctx.chatHistory)
+                    updateUiShowRoom()
                 }
             ],
             invoke: {
@@ -176,7 +179,13 @@ export const lobbyMachine = Machine<LobbyContext, LobbySchema, LobbyEvent>({
                         })]
                 },
                 'send.msg': {
-                    actions: ['sendMessage']
+                    cond: (ctx) => ctx.msg != null && ctx.msg !== '',
+                    actions: [
+                        'sendMessage',
+                        // clearing the context.msg value
+                        // is done manually by firing an input event
+                        updateUiClearChatMessageInput
+                    ]
                 }
             },
         },

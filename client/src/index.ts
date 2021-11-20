@@ -25,7 +25,9 @@ const initialContext: LobbyContext = {
 
 const lobbyService = interpret(lobbyMachine.withContext(initialContext))
     .onTransition(function(state){
-        console.log('curr state: ', state.value, state.context)
+        if(state.changed){
+            console.log('state', state.value, "ctx", state.context)            
+        }
 
         switch (state.value) {
             // case 'startscreen':
@@ -55,6 +57,14 @@ usernameInp.addEventListener('input', (event) => {
         value: (event.target as HTMLInputElement).value
     });
 });
+
+// on enter, send lobby join
+usernameInp.addEventListener('keydown', (event) => {
+    const ENTER_KEY = 'Enter'
+    if (event.key === ENTER_KEY || event.code === ENTER_KEY) {
+        lobbyService.send('enter')
+    }
+})
 
 // on changing a room in the select dropw down, update the context state 
 // (saving internal var in statemachine)
