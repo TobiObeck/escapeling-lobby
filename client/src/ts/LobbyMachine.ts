@@ -19,7 +19,7 @@ export interface LobbySchema {
 
 // The events that the machine handles
 type LobbyEvent =
-    { type: 'enter'}
+    { type: 'join'}
     | { type: 'back' }
     | { type: 'name.change', value: string }
     | { type: 'select.room', value: string }
@@ -60,7 +60,7 @@ export const lobbyMachine = Machine<LobbyContext, LobbySchema, LobbyEvent>({
             ],
             on: {
                 // when in startscreen and enter event is fired
-                'enter': {
+                'join': {
                     cond: (ctx) => ctx.username != '' && ctx.lobbyname != '',
                     target: 'connecting', // target state             
                 },

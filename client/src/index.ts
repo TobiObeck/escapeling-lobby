@@ -41,7 +41,7 @@ document.debugLobbyService = lobbyService
 
 // on join room button click, try to connect and enter room
 joinRoomBtn.addEventListener('click', function () {
-    lobbyService.send('enter')
+    lobbyService.send('join')
 });
 
 // on leave room button click, try disconnect and leave the room
@@ -58,11 +58,11 @@ usernameInp.addEventListener('input', (event) => {
     });
 });
 
-// on enter, send lobby join
+// on pressing enter key in the name text field, send lobby join
 usernameInp.addEventListener('keydown', (event) => {
     const ENTER_KEY = 'Enter'
     if (event.key === ENTER_KEY || event.code === ENTER_KEY) {
-        lobbyService.send('enter')
+        lobbyService.send('join')
     }
 })
 
