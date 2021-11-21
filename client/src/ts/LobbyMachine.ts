@@ -27,6 +27,7 @@ type LobbyEvent =
     | { type: 'send.msg', value: string }
     | { type: 'connect' }
     | { type: 'error' }
+    | { type: 'message-received', value: string[] }
 
 
 // The context (extended state) of the machine
@@ -36,7 +37,7 @@ export interface LobbyContext {
     io: null | ReturnType<typeof io>,
     msg: string,
     roomId: null | string,
-    chatHistory: Array<string>
+    chatHistory: Array<Array<string>>
 }
 
 export const lobbyMachine = Machine<LobbyContext, LobbySchema, LobbyEvent>({
@@ -140,35 +141,33 @@ export const lobbyMachine = Machine<LobbyContext, LobbySchema, LobbyEvent>({
             ],
             invoke: {
                 id: 'msghandler',
-                src: (ctx, event) => {
-                    return new Promise((resolve, reject) => {
-                        ctx.io.on('broadcast-message', function(args){
-                            const {username, msg} = args
-                            const messagePair = [username, msg]
+                src: (ctx, event) => (callback, onReceive) => {
 
-                            if(messagePair != null && messagePair.length != 0){
-                                // console.log('formatted', formattedMsg)
-                                resolve(messagePair)
-                            } 
-                        })
-                    });
-                },
-                onDone: {
+                    ctx.io.on('broadcast-message', function(args){
+                        const username: string = args['username']
+                        const msg: string = args['msg']
+                        const messagePair = [username, msg]
+
+                        if(messagePair != null && messagePair.length != 0){
+                            callback({ type: 'message-received', value: messagePair })
+                        }
+                    })
+                }
+            },
+            on: {
+                'message-received': {
                     actions: [
                         assign({
                             chatHistory: (ctx, event) => {  
-                                console.log('chathsitory event data', event.data)                 
-                                return [...ctx.chatHistory, event.data]
+                                console.log('chathsitory event data', event.value)                 
+                                return [...ctx.chatHistory, event.value]
                             }
                         }),
                         (ctx, _) => {
                             updateUiChatMessage(ctx.chatHistory)
                         }
                     ],
-                    target: 'room',  // leads to problem of re-registering io.on callback
-                }
-            },
-            on: {                
+                },                          
                 back: 'startscreen',
                 'msg.change': {
                     actions: [
@@ -187,7 +186,7 @@ export const lobbyMachine = Machine<LobbyContext, LobbySchema, LobbyEvent>({
                         updateUiClearChatMessageInput
                     ]
                 }
-            },
+            },            
         },
     },
 },
