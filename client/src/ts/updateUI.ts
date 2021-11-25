@@ -1,3 +1,5 @@
+import { CHAT_MESSAGES } from "./Constants";
+
 // content container
 const joinContainer = (document.getElementById('join-container') as HTMLDivElement)
 const chatContainer = (document.getElementById('chat-container') as HTMLDivElement)
@@ -18,7 +20,7 @@ export function updateUiShowStartScreen(){
 }
 
 export function updateUiChatMessage(chatHistory: Array<any>){
-    const chatMsgContainer = <HTMLDivElement>document.querySelector('.chat-messages')
+    const chatMsgContainer = <HTMLDivElement>document.querySelector(CHAT_MESSAGES)
     
     // reset previous chat history that was already printed
     chatMsgContainer.innerHTML = ''

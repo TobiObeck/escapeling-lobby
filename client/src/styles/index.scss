@@ -112,6 +112,10 @@ a {
 	padding: 10px 0;
 }
 
+.chat-messages-container {
+	position: relative;
+}
+
 .chat-messages {
 	padding: 30px;
 	max-height: 500px;
@@ -135,6 +139,15 @@ a {
 
 .chat-messages .message .meta span {
 	color: #777;
+}
+
+.instructions {	
+	position: absolute;
+    bottom: 0;
+    width: 100%;
+    background-color: red;
+    padding: 0.5rem;
+    text-align: left;
 }
 
 .chat-form-container {

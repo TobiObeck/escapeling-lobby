@@ -15,7 +15,7 @@ const msgSendBtn = (document.getElementById('msg-send') as HTMLButtonElement)
 // so that only dynamic context value need to be passed
 // https://xstate.js.org/docs/guides/context.html#initial-context
 const initialContext: LobbyContext = {
-    username: usernameInp.value,
+    username: usernameInp.value + "debug",
     lobbyname: roomSel.value,
     io: null,
     msg: '',
@@ -35,6 +35,9 @@ const lobbyService = interpret(lobbyMachine.withContext(initialContext))
         }
     })
     .start();
+
+    
+lobbyService.send('join') // FIXME just for debugging
 
 // @ts-ignore
 document.debugLobbyService = lobbyService
