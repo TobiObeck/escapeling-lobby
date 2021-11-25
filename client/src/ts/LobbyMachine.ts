@@ -121,7 +121,12 @@ export const lobbyMachine = Machine<LobbyContext, LobbySchema, LobbyEvent>({
                     });
 
                     ctx.io.on('user-connected', (arg) => {
-                        console.log('user connected!!!', arg)
+                        console.log('user connected!!!', arg['log_msg'])
+                        
+                        // ToDo
+                        // append arg['chat_history'] (message_hist with [userId, username, msg] - needs to be filtered as [[username, msg]] is the style on the client site)
+                        // to the client history and update UI
+
                     });
                 }
             ],
@@ -148,7 +153,7 @@ export const lobbyMachine = Machine<LobbyContext, LobbySchema, LobbyEvent>({
                         const msg: string = args['msg']
                         const messagePair = [username, msg]
 
-                        if(messagePair != null && messagePair.length != 0){
+                        if(messagePair != null && messagePair.length != 0){                            
                             callback({ type: 'message-received', value: messagePair })
                         }
                     })
@@ -159,7 +164,6 @@ export const lobbyMachine = Machine<LobbyContext, LobbySchema, LobbyEvent>({
                     actions: [
                         assign({
                             chatHistory: (ctx, event) => {  
-                                console.log('chathsitory event data', event.value)                 
                                 return [...ctx.chatHistory, event.value]
                             }
                         }),

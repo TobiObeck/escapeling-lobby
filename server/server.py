@@ -5,6 +5,7 @@ from room import Room
 from user import User
 import uuid
 
+MIN_PLAYER_COUNT = 3
 MAX_PLAYER_COUNT = 4
 rooms: List[Room] = []
 users: List[User] = []
@@ -62,8 +63,15 @@ def handle_join(json):
     join_room(free_room.get_id())
     free_room.assign_user(newUser)
 
+    log_msg = json["username"] + ' has entered the room.'
+    chat_history = free_room.get_chat_history()
+
+    payload = {'log_msg': log_msg,
+               'chat_histroy': chat_history}
+
+    emit("user-connected", payload, room=free_room.get_id())
+
     # random stuff for testing
-    emit("user-connected", json["username"] + ' has entered the room.', room=free_room.get_id())
 
     print("printing all the connected users")
     for user in users:
@@ -96,7 +104,7 @@ def handle_send_message(json):
     print("chat_room", chat_room)
 
     # store message to room chat history
-    chat_room.append_to_chat_history(json['userId'], json['msg'])
+    chat_room.append_to_chat_history(json['userId'], json['username'], json['msg'])
 
     # send message to all users within that room    
     

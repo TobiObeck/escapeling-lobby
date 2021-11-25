@@ -8,7 +8,7 @@ class Room:
         self._id = id # incrementing by one for each new room
         self._players = []
         self._max_players = max_players        
-        self._chat_history: List[Dict] = []
+        self._chat_history: List[List] = []
 
     def is_free(self):        
         if len(self._players) >= self._max_players:
@@ -21,11 +21,8 @@ class Room:
     def get_id(self):
         return self._id
 
-    def append_to_chat_history(self, userId, message):
-        self._chat_history.append({
-            userId: userId,
-            message: message
-        })
+    def append_to_chat_history(self, userId, username, message):
+        self._chat_history.append([userId, username, message])
 
     def get_chat_history(self):
         return self._chat_history
