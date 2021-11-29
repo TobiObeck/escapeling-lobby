@@ -8,11 +8,24 @@ import {
     updateUiClearChatMessageInput
 } from './updateUI';
 
+export interface ChatPayload {
+    'time': string,
+    'username': string,
+    'msg': string,
+}
+
+interface ConnectedPayload {
+    'username': string
+    'chathistory': ChatPayload[],
+    'isadmin': boolean
+}
+
 export interface LobbySchema {
     states: {
         startscreen: {};
         errorscreen: {};
         connecting: {};
+        connected:{};
         room: {};
     };
 }
@@ -26,8 +39,9 @@ type LobbyEvent =
     | { type: 'msg.change', value: string }
     | { type: 'send.msg', value: string }
     | { type: 'connect' }
-    | { type: 'error' }
-    | { type: 'message-received', value: string[] }
+    | { type: 'error' }    
+    | { type: 'connection-established', value: any } // TODO define data type sth like dictionary chathistory, name time
+    | { type: 'message-received', value: ChatPayload }
 
 
 // The context (extended state) of the machine
@@ -37,7 +51,7 @@ export interface LobbyContext {
     io: null | ReturnType<typeof io>,
     msg: string,
     roomId: null | string,
-    chatHistory: Array<Array<string>>
+    chatHistory: ChatPayload[]
 }
 
 export const lobbyMachine = Machine<LobbyContext, LobbySchema, LobbyEvent>({
@@ -104,7 +118,7 @@ export const lobbyMachine = Machine<LobbyContext, LobbySchema, LobbyEvent>({
                     });
                 },
                 onDone: {
-                    target: 'room',
+                    target: 'connected',
                     actions: assign({ io: (ctx, event) => event.data })
                 }
                 // onError: {
@@ -117,20 +131,52 @@ export const lobbyMachine = Machine<LobbyContext, LobbySchema, LobbyEvent>({
                     ctx.io.emit('join', {
                         userid: ctx.io.id,
                         username: ctx.username,
-                        // roomId: arguments[0]
-                    });
-
-                    ctx.io.on('user-connected', (arg) => {
-                        console.log('user connected!!!', arg['log_msg'])
-                        
-                        // ToDo
-                        // append arg['chat_history'] (message_hist with [userId, username, msg] - needs to be filtered as [[username, msg]] is the style on the client site)
-                        // to the client history and update UI
-
                     });
                 }
             ],
         },
+
+        connected:{
+            invoke: {
+                id: 'connecter',
+                src: (ctx, event) => (callback, onReceive) => {
+                    ctx.io.on('user-connected', (arg: ConnectedPayload) => {
+                        
+                        console.log('user connected!!!', arg)
+                        console.log('previous chatHistory', arg['chathistory'])
+                        console.log('username', arg['username'])
+                    
+                        const userJoinedMsg = arg['username'] + ' has entered the room.'
+
+                        const value = {
+                            userJoinedMsg,
+                            chatHistory: arg['chathistory'],
+                            isadmin: arg['isadmin']
+                        }
+
+                        callback({ type: 'connection-established', value: value })
+                    })
+                }
+            },
+            on: {
+                'connection-established': {
+                    target: 'room',                    
+                    actions: [
+                        assign({
+                            chatHistory: (ctx, event) => { 
+                                
+                                console.log('1!', ctx.chatHistory)
+                                console.log('2!', event.value.chatHistory)
+                                const payload = [...ctx.chatHistory, ...event.value.chatHistory]
+                                
+                                return event.value.chatHistory
+                            }
+                        })                        
+                    ]
+                }
+            }
+        },
+
         errorscreen: {
             entry: () => {
                 // TODO currently this state is never reached
@@ -140,21 +186,24 @@ export const lobbyMachine = Machine<LobbyContext, LobbySchema, LobbyEvent>({
         },
         room: {
             entry: [
+                (ctx, _) => updateUiShowRoom(),
                 (ctx, _) => {
-                    updateUiShowRoom()
-                }
+                    console.log('CONTEXT chatHistory', ctx.chatHistory)
+                    updateUiChatMessage(ctx.chatHistory)
+                }                     
             ],
             invoke: {
                 id: 'msghandler',
                 src: (ctx, event) => (callback, onReceive) => {
 
-                    ctx.io.on('broadcast-message', function(args){
-                        const username: string = args['username']
-                        const msg: string = args['msg']
-                        const messagePair = [username, msg]
+                    ctx.io.on('broadcast-message', function(args: ChatPayload){
+                        // const time: string = args['time']
+                        // const username: string = args['username']
+                        // const msg: string = args['msg']
+                        // const messagePair = [time, username, msg]
 
-                        if(messagePair != null && messagePair.length != 0){                            
-                            callback({ type: 'message-received', value: messagePair })
+                        if(args.msg != null && args.msg.length != 0){                            
+                            callback({ type: 'message-received', value: args })
                         }
                     })
                 }
