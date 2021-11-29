@@ -1,11 +1,17 @@
 import './styles/index.scss'
 import { interpret } from 'xstate'
 import { lobbyMachine, LobbyContext } from './ts/LobbyMachine'
+import { JOIN_ROOM_BTN_ID } from './ts/Constants'
+
+const IS_DEBUGGING = false
 
 // interactable UI elements
+const joinRoomBtn = (document.getElementById(JOIN_ROOM_BTN_ID) as HTMLButtonElement)
 const usernameInp = (document.querySelector('#username-input') as HTMLInputElement)
+if(IS_DEBUGGING){
+    usernameInp.value = 'debug' // FIXME TODO  debugging
+}
 const roomSel = (document.querySelector('#room-select') as HTMLSelectElement)
-const joinRoomBtn = (document.getElementById('join-room-btn')  as HTMLButtonElement)
 const leaveRoomBtn = (document.getElementById('leave-room-btn') as HTMLButtonElement)
 
 const msgInp = (document.getElementById('msg') as HTMLInputElement)
@@ -15,7 +21,7 @@ const msgSendBtn = (document.getElementById('msg-send') as HTMLButtonElement)
 // so that only dynamic context value need to be passed
 // https://xstate.js.org/docs/guides/context.html#initial-context
 const initialContext: LobbyContext = {
-    username: usernameInp.value + "debug",
+    username: usernameInp.value,
     lobbyname: roomSel.value,
     io: null,
     msg: '',
@@ -36,8 +42,9 @@ const lobbyService = interpret(lobbyMachine.withContext(initialContext))
     })
     .start();
 
-    
-lobbyService.send('join') // FIXME just for debugging
+if(IS_DEBUGGING){
+    lobbyService.send('join') // FIXME just for debugging
+}
 
 // @ts-ignore
 document.debugLobbyService = lobbyService

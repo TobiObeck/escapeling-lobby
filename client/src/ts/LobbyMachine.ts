@@ -5,7 +5,8 @@ import {
     updateUiShowRoom,
     updateUiShowStartScreen,
     updateUiChatMessage,
-    updateUiClearChatMessageInput
+    updateUiClearChatMessageInput,
+    updateUiConnectLoading
 } from './updateUI';
 
 export interface LobbySchema {
@@ -62,7 +63,7 @@ export const lobbyMachine = Machine<LobbyContext, LobbySchema, LobbyEvent>({
             on: {
                 // when in startscreen and enter event is fired
                 'join': {
-                    cond: (ctx) => ctx.username != '' && ctx.lobbyname != '',
+                    cond: (ctx) => ctx.username != '' && ctx.lobbyname != '',                    
                     target: 'connecting', // target state             
                 },
                 // on name.change event, update context state username
@@ -86,6 +87,7 @@ export const lobbyMachine = Machine<LobbyContext, LobbySchema, LobbyEvent>({
             },
         },
         connecting: {
+            entry: (ctx, _) => updateUiConnectLoading(),
             invoke: {
                 id: 'connecter',
                 src: (ctx, event) => {
