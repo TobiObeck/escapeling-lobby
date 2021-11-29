@@ -1,11 +1,17 @@
 import './styles/index.scss'
 import { interpret } from 'xstate'
 import { lobbyMachine, LobbyContext } from './ts/LobbyMachine'
+import { JOIN_ROOM_BTN_ID } from './ts/Constants'
+
+const IS_DEBUGGING = false
 
 // interactable UI elements
+const joinRoomBtn = (document.getElementById(JOIN_ROOM_BTN_ID) as HTMLButtonElement)
 const usernameInp = (document.querySelector('#username-input') as HTMLInputElement)
+if(IS_DEBUGGING){
+    usernameInp.value = 'debug' // FIXME TODO  debugging
+}
 const roomSel = (document.querySelector('#room-select') as HTMLSelectElement)
-const joinRoomBtn = (document.getElementById('join-room-btn')  as HTMLButtonElement)
 const leaveRoomBtn = (document.getElementById('leave-room-btn') as HTMLButtonElement)
 
 const msgInp = (document.getElementById('msg') as HTMLInputElement)
@@ -35,6 +41,10 @@ const lobbyService = interpret(lobbyMachine.withContext(initialContext))
         }
     })
     .start();
+
+if(IS_DEBUGGING){
+    lobbyService.send('join') // FIXME just for debugging
+}
 
 // @ts-ignore
 document.debugLobbyService = lobbyService

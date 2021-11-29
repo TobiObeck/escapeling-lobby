@@ -1,4 +1,5 @@
 import { ChatPayload } from "./LobbyMachine";
+import { CHAT_MESSAGES, JOIN_ROOM_BTN_ID } from "./Constants";
 
 // content container
 const joinContainer = (document.getElementById('join-container') as HTMLDivElement)
@@ -18,9 +19,14 @@ export function updateUiShowStartScreen(){
     joinContainer.classList.remove('hidden');
     chatContainer.classList.add('hidden')
 }
+    
+export function updateUiConnectLoading(){
+    const joinRoomBtn = (document.getElementById(JOIN_ROOM_BTN_ID) as HTMLButtonElement)
+    joinRoomBtn.innerHTML = 'Connecting...'
+}
 
 export function updateUiChatMessage(chatHistory: Array<ChatPayload>){
-    const chatMsgContainer = <HTMLDivElement>document.querySelector('.chat-messages')
+    const chatMsgContainer = <HTMLDivElement>document.querySelector(CHAT_MESSAGES)
     
     // reset previous chat history that was already printed
     chatMsgContainer.innerHTML = ''

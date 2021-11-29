@@ -112,7 +112,14 @@ a {
 	padding: 10px 0;
 }
 
+.chat-messages-container {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
 .chat-messages {
+	flex-grow: 1;
 	padding: 30px;
 	max-height: 500px;
 	overflow-y: scroll;
@@ -135,6 +142,13 @@ a {
 
 .chat-messages .message .meta span {
 	color: #777;
+}
+
+.instructions {
+    width: 100%;
+    background-color: #7cf;
+    padding: 0.5rem;
+    text-align: left;
 }
 
 .chat-form-container {
