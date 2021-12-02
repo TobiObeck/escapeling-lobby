@@ -25,15 +25,28 @@ export function updateUiConnectLoading(){
     joinRoomBtn.innerHTML = 'Connecting...'
 }
 
-export function updateUiChatMessage(chatHistory: Array<ChatPayload>){
+export function updateUiUsersInRoom(usercountinroom: number){    
+    const userCount = document.getElementById("usercount");    
+    userCount.innerHTML = usercountinroom + "/4";
+
+    const usernames = ['duckface', 'smart person', 'birdperson', "kingen"] // FIXME TODO PLEASE ACRTUALLY USE ARAELY USERNAME OTHERWISE SOME KITTEN WILL DIE EVENTUALYIMMEITIALTYL  ALSO THE ILINE IS WHA Y TO LONG
+    for (let i = 0; i < usernames.length; i++) {
+        var ul = document.getElementById("users");
+        var li = document.createElement("li");
+        li.appendChild(document.createTextNode(usernames[i]));
+        ul.appendChild(li)
+    }
+}
+
+export function updateUiChatMessage(chathistory: Array<ChatPayload>){
     const chatMsgContainer = <HTMLDivElement>document.querySelector(CHAT_MESSAGES)
     
     // reset previous chat history that was already printed
     chatMsgContainer.innerHTML = ''
     
     // compose chat message
-    for(let i = 0; i < chatHistory.length; i++){
-        const item = chatHistory[i]
+    for(let i = 0; i < chathistory.length; i++){
+        const item = chathistory[i]
         // console.log('current message', i)
 
         const messageContent = ` 

@@ -10,12 +10,12 @@
 			integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk="
 			crossorigin="anonymous"
 		/>
-		<title>ChatCord App</title>
+		<title>Escapeling Lobby</title>
 	</head>
 	<body>
 		<div id="join-container" class="join-container">
 			<header class="join-header">
-				<h1><i class="fas fa-smile"></i> ChatCord</h1>
+				<h1><i class="fas fa-smile"></i> Escapeling Lobby</h1>
 			</header>
 			<main class="join-main">
 				<div action="#">
@@ -48,27 +48,41 @@
 
 		<div id="chat-container" class="chat-container hidden">
 			<header class="chat-header">
-			  <h1><i class="fas fa-smile"></i> ChatCord</h1>
+			  <h1><i class="fas fa-smile"></i> Escapeling Lobby</h1>
 			  <button id="leave-room-btn" class="btn">Leave Room</button>
 			</header>
 			<main class="chat-main">
 			  <div class="chat-sidebar">
-				<h3><i class="fas fa-comments"></i> Room Name:</h3>
-				<h2 id="room-name">JavaScript</h2>
-				<h3><i class="fas fa-users"></i> Users</h3>
+				<h3><i class="fas fa-comments"></i> Room Name </h3>
+				<h2 id="room-name">Birdplace</h2>
+				<h3><i class="fas fa-users"></i> Users <span id="usercount"></span></h3>
 				<ul id="users">
-				  <li>Brad</li>
-				  <li>John</li>
-				  <li>Mary</li>
-				  <li>Paul</li>
-				  <li>Mike</li>
 				</ul>
 			  </div>
 			  <div class="chat-messages-container">
 				<div class="chat-messages">
 				</div>
 				<div class="instructions">
-					<b>Admin Instruction Placeholder</b>
+					Hello %%NAME_PLACEHOLDER%% 😁</br>
+						<!-- you have been selected to set up the Escapeling Game for you and your group members, just follow these instructions:
+						<ol>
+							<li>Go to this website <a href="https://t.me/Escapeling_Bot">LINK</a> and open the Escapeling Chat within Telegram</li>
+							<li>To start the adventure send the message '/start' into the chat</li>
+							<li>From this point on Elias will guide you through the mission, tell him to 'create a group'</li>
+							<li>Elias will create a registration code for your friends. As a last step send the code into your group chat</li>
+						</ol>
+						Well done, you've successfully created a new mission for you and your friends and are all set up to start the adventure. Have fun and enjoy the Game.
+						
+					Hello %%NAME_PLACEHOLDER%% 😁,</br>
+						you have chosen to go on a quest with your team mates, but at first, we will have to set up the game. There is not a lot to do from your side, follow these instructions and you will be all set up:
+						<ol>
+							<li>Go to this website <a href="https://t.me/Escapeling_Bot">LINK</a> and open the Escapeling Chat within Telegram</li>
+							<li>To start the adventure send the message '/start' into the chat.</li>
+							<li>From this point on Elias will guide you through the mission, tell him to 'join a group'</li>
+							<li>Wait for the Admin to post the registration code into the chat (or maybe remind him of it)</li>
+							<li>Provide Elias with the registration code by copying and pasting it to your Escapeling adventure.</li>
+						</ol>
+						Well done, you've successfully joined the Escapeling game with your friends and are set up to start the adventure. Have fun and enjoy the Game. -->
 				</div>
 					<!-- <div class="message">
 						<p class="meta">Brad <span>9:12pm</span></p>

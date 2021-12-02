@@ -6,7 +6,8 @@ import {
     updateUiShowStartScreen,
     updateUiChatMessage,
     updateUiClearChatMessageInput,
-    updateUiConnectLoading
+    updateUiConnectLoading,
+    updateUiUsersInRoom
 } from './updateUI';
 
 export interface ChatPayload {
@@ -18,7 +19,12 @@ export interface ChatPayload {
 interface ConnectedPayload {
     'username': string
     'chathistory': ChatPayload[],
-    'isadmin': boolean
+    'isadmin': boolean,
+    'usercountinroom': number
+}
+
+interface ConnectedPayloadWithMsg extends Omit<ConnectedPayload, 'username'>{
+    userJoinedMsg: string
 }
 
 export interface LobbySchema {
@@ -41,7 +47,7 @@ type LobbyEvent =
     | { type: 'send.msg', value: string }
     | { type: 'connect' }
     | { type: 'error' }    
-    | { type: 'connection-established', value: any } // TODO define data type sth like dictionary chathistory, name time
+    | { type: 'connection-established', value: ConnectedPayloadWithMsg } // TODO define data type sth like dictionary chathistory, name time
     | { type: 'message-received', value: ChatPayload }
 
 
@@ -52,7 +58,8 @@ export interface LobbyContext {
     io: null | ReturnType<typeof io>,
     msg: string,
     roomId: null | string,
-    chatHistory: ChatPayload[]
+    chathistory: ChatPayload[],
+    usercountinroom: number
 }
 
 export const lobbyMachine = Machine<LobbyContext, LobbySchema, LobbyEvent>({
@@ -63,7 +70,8 @@ export const lobbyMachine = Machine<LobbyContext, LobbySchema, LobbyEvent>({
         io: null,
         msg: '',
         roomId: null,
-        chatHistory: []
+        chathistory: [],
+        usercountinroom: 0
     },
     initial: 'startscreen',
     states: {
@@ -145,15 +153,16 @@ export const lobbyMachine = Machine<LobbyContext, LobbySchema, LobbyEvent>({
                     ctx.io.on('user-connected', (arg: ConnectedPayload) => {
                         
                         console.log('user connected!!!', arg)
-                        console.log('previous chatHistory', arg['chathistory'])
+                        console.log('previous chathistory', arg['chathistory'])
                         console.log('username', arg['username'])
                     
                         const userJoinedMsg = arg['username'] + ' has entered the room.'
 
-                        const value = {
+                        const value: ConnectedPayloadWithMsg = {                            
                             userJoinedMsg,
-                            chatHistory: arg['chathistory'],
-                            isadmin: arg['isadmin']
+                            chathistory: arg['chathistory'],
+                            isadmin: arg['isadmin'],
+                            usercountinroom: arg['usercountinroom']
                         }
 
                         callback({ type: 'connection-established', value: value })
@@ -165,13 +174,11 @@ export const lobbyMachine = Machine<LobbyContext, LobbySchema, LobbyEvent>({
                     target: 'room',                    
                     actions: [
                         assign({
-                            chatHistory: (ctx, event) => { 
-                                
-                                console.log('1!', ctx.chatHistory)
-                                console.log('2!', event.value.chatHistory)
-                                const payload = [...ctx.chatHistory, ...event.value.chatHistory]
-                                
-                                return event.value.chatHistory
+                            chathistory: (ctx, event) => { 
+                                return event.value.chathistory
+                            },
+                            usercountinroom: (ctx, event) => { 
+                                return event.value.usercountinroom
                             }
                         })                        
                     ]
@@ -187,11 +194,25 @@ export const lobbyMachine = Machine<LobbyContext, LobbySchema, LobbyEvent>({
             }
         },
         room: {
+            // initial: 'waiting-for-players',
+            // always: [
+            //     { target: 'waiting-for-players', cond: true }
+            // ],
+            // states:{
+            //     'waiting-for-players': {
+                    
+            //         // cond: (ctx) => ctx.msg != null && ctx.msg !== '',
+            //     },
+            //     'ready-to-play':{
+
+            //     }
+            // },
             entry: [
                 (ctx, _) => updateUiShowRoom(),
                 (ctx, _) => {
-                    console.log('CONTEXT chatHistory', ctx.chatHistory)
-                    updateUiChatMessage(ctx.chatHistory)
+                    console.log('CONTEXT chathistory', ctx.chathistory)
+                    updateUiChatMessage(ctx.chathistory),
+                    updateUiUsersInRoom(ctx.usercountinroom)
                 }                     
             ],
             invoke: {
@@ -214,12 +235,12 @@ export const lobbyMachine = Machine<LobbyContext, LobbySchema, LobbyEvent>({
                 'message-received': {
                     actions: [
                         assign({
-                            chatHistory: (ctx, event) => {  
-                                return [...ctx.chatHistory, event.value]
+                            chathistory: (ctx, event) => {  
+                                return [...ctx.chathistory, event.value]
                             }
                         }),
                         (ctx, _) => {
-                            updateUiChatMessage(ctx.chatHistory)
+                            updateUiChatMessage(ctx.chathistory)
                         }
                     ],
                 },                          

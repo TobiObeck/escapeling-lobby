@@ -26,7 +26,8 @@ const initialContext: LobbyContext = {
     io: null,
     msg: '',
     roomId: null,
-    chatHistory: []
+    chathistory: [],
+    usercountinroom: 0
 }
 
 const lobbyService = interpret(lobbyMachine.withContext(initialContext))

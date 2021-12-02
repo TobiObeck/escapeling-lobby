@@ -49,6 +49,9 @@ class Room:
         
         return False
 
+    def get_player_count(self):
+        return len(self._players)
+
     def is_admin(self, user):
         if self._admin.get_id() == user.get_id():
             admin_role = True
@@ -56,3 +59,6 @@ class Room:
             admin_role = False
 
         return admin_role
+        
+        
+    

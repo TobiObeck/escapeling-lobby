@@ -51,12 +51,13 @@ def find_room_of_user(userId: str):
 
 @socketio.on('join')
 def handle_join(json):
-    print('received json!!!: ' + str(json))
-    print('received user id: ' + json["userid"])
-    print('received user username: ' + json["username"])
+    username = json["username"]
+    userid = json["userid"]
+
+    print(f"{username} ({userid}) joined!")
 
     # initialize user
-    newUser = User(json["userid"], json["username"])
+    newUser = User(userid, username)
     users.append(newUser)
     
     # handle room assignment and join
@@ -66,20 +67,14 @@ def handle_join(json):
     
     chat_history = filter_out_userid(free_room.get_chat_history())
 
-    print('here array or dict?', chat_history)
-
     connected_payload = {
-        'username': json["username"],
+        'username': username,
         'chathistory': chat_history,
-        'isadmin': free_room.is_admin(newUser)
+        'isadmin': free_room.is_admin(newUser),
+        'usercountinroom': free_room.get_player_count()
     }
 
     emit("user-connected", connected_payload, room=free_room.get_id())
-    
-    # random stuff for testing
-    # print("printing all the connected users")
-    # for user in users:
-    #     print(user._user_socket_id, user._name)
 
 def filter_out_userid(chat_history):
     """
@@ -87,9 +82,6 @@ def filter_out_userid(chat_history):
     """
 
     filtered_users = [{'time': msg_item['time'], 'username': msg_item['username'], 'msg': msg_item['msg']} for msg_item in chat_history]
-
-    # alternative way to do it I guess
-    # filtered_users = [{k: v for k, v in d.iteritems() if k != 'userid'} for d in free_room.get_chat_history()]
 
     return filtered_users
 
@@ -119,13 +111,6 @@ if __name__ == '__main__':
 
 # leftovers ----------------
 """
-@socketio.on('join')
-def on_join(data):
-    username = data['username']
-    room = data['room']
-    join_room(room)
-    send(username + ' has entered the room.', to=room)
-
 @socketio.on('leave')
 def on_leave(data):
     username = data['username']
