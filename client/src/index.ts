@@ -1,4 +1,6 @@
 import './styles/index.scss'
+import './images/lobby_logo.png'
+
 import { interpret } from 'xstate'
 import { lobbyMachine, LobbyContext } from './ts/LobbyMachine'
 import { JOIN_ROOM_BTN_ID } from './ts/Constants'
