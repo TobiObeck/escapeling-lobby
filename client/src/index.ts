@@ -17,9 +17,15 @@ const leaveRoomBtn = (document.getElementById('leave-room-btn') as HTMLButtonEle
 const msgInp = (document.getElementById('msg') as HTMLInputElement)
 const msgSendBtn = (document.getElementById('msg-send') as HTMLButtonElement)
 
+const instructionsDisplayBtn = (document.getElementById('display-instructions-btn') as HTMLInputElement)
+const instructionsCloseBtn = (document.getElementById('collapse-instructions-btn') as HTMLInputElement)
+
 // TODO replace with factory function
 // so that only dynamic context value need to be passed
 // https://xstate.js.org/docs/guides/context.html#initial-context
+
+// usernameInp.value, roomSel.value
+
 const initialContext: LobbyContext = {
     username: usernameInp.value,
     lobbyname: roomSel.value,
@@ -27,7 +33,8 @@ const initialContext: LobbyContext = {
     msg: '',
     roomId: null,
     chathistory: [],
-    usercountinroom: 0
+    usernames: [],
+    isadmin: null
 }
 
 const lobbyService = interpret(lobbyMachine.withContext(initialContext))
@@ -106,4 +113,14 @@ msgInp.addEventListener('keydown', (event) => {
 // on send button click, send chat message
 msgSendBtn.addEventListener('click', function () {
     lobbyService.send('send.msg')
+});
+
+// start giving mission instructions when start clicked
+instructionsDisplayBtn.addEventListener('click', function(event) {
+    lobbyService.send('show.instructions')
+});
+
+instructionsCloseBtn.addEventListener('click', function(event) {
+    console.log('closing machine side')
+    lobbyService.send('collapse.instructions')
 });

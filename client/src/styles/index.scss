@@ -173,6 +173,10 @@ a {
 	flex: 1;
 }
 
+#chat-form input {
+	margin: 0 0.2rem;
+}
+
 /* Join Page */
 .join-container {
 	max-width: 500px;
@@ -237,4 +241,55 @@ a {
 
 .hidden{
   display: none;
+}
+
+// .collapsible {
+// 	background-color: var(--dark-color-b);
+// 	color: var(--dark-color-a);
+// 	cursor: pointer;
+// 	padding: 18px;
+// 	width: 100%;
+// 	border: none;
+// 	text-align: left;
+// 	outline: none;
+// 	// font-size: 15px;
+//   }
+
+//   .active, .collapsible:hover {
+// 	background-color: var(--light-color);
+//   }
+
+//   .collapsible-content {
+// 	padding: 10px 10px;
+// 	display: True;
+// 	overflow: hidden;
+// 	background-color: var(--dark-color-b);
+// 	color: var(--light-color);
+// 	text-align: left;
+//   }
+
+.collapsible-content {
+	text-align: left;
+	background: var(--light-color);
+	overflow: hidden;
+	border: 1px solid #D2D7F9;
+	padding: 10px;
+	border-radius: 10px;
+}
+
+#collapse-instructions-btn {
+	float: right;
+	font-size: small;
+	background: None
+}
+
+.divider {
+    width: 10px;
+    height: auto;
+    display: inline-block;
+	color: var(--dark-color-a)
+}
+
+.used {
+	color: gray;
 }

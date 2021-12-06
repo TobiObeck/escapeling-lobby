@@ -71,7 +71,7 @@ def handle_join(json):
         'username': username,
         'chathistory': chat_history,
         'isadmin': free_room.is_admin(newUser),
-        'usercountinroom': free_room.get_player_count()
+        'usernames': free_room.get_player_names()
     }
 
     emit("user-connected", connected_payload, room=free_room.get_id())

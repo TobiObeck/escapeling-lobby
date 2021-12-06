@@ -25,11 +25,10 @@ export function updateUiConnectLoading(){
     joinRoomBtn.innerHTML = 'Connecting...'
 }
 
-export function updateUiUsersInRoom(usercountinroom: number){    
+export function updateUiUsersInRoom(usernames: string[]){    
     const userCount = document.getElementById("usercount");    
-    userCount.innerHTML = usercountinroom + "/4";
+    userCount.innerHTML = usernames.length + "/4";
 
-    const usernames = ['duckface', 'smart person', 'birdperson', "kingen"] // FIXME TODO PLEASE ACRTUALLY USE ARAELY USERNAME OTHERWISE SOME KITTEN WILL DIE EVENTUALYIMMEITIALTYL  ALSO THE ILINE IS WHA Y TO LONG
     for (let i = 0; i < usernames.length; i++) {
         var ul = document.getElementById("users");
         var li = document.createElement("li");
@@ -79,4 +78,30 @@ export function updateUiClearChatMessageInput(){
         cancelable: true,
     });    
     msgInp.dispatchEvent(event);
+}
+
+export function updateUiShowInstructions(){
+    const instructionsField = (document.getElementById('instructions-container') as HTMLInputElement)
+    const instructionBtn = (document.getElementById('display-instructions-btn') as HTMLInputElement)
+    instructionBtn.classList.add('used');
+    instructionsField.classList.remove('hidden');
+}
+
+export function updateUiCollapseInstructions(){
+    const instructionsField = (document.getElementById('instructions-container') as HTMLInputElement)
+    const instructionBtn = (document.getElementById('display-instructions-btn') as HTMLInputElement)
+    instructionBtn.classList.remove('used');
+    instructionsField.classList.add('hidden');
+}
+
+export function updateUisetInstructionText(isAdmin: boolean | null, username: string) {
+    const instructionsText = (document.getElementById('instructions-txt') as HTMLInputElement)        
+    const adminInstructions = `Hello ${username},</br> you have been selected to set up the Escapeling Game for you and your group members, just follow these instructions: <ol><li>Go to this website <a href="https://t.me/Escapeling_Bot">LINK</a> and open the Escapeling Chat within Telegram</li><li>To start the adventure send the message \'/start\' into the chat</li><li>From this point on Elias will guide you through the mission, tell him to "create a group"</li><li>Elias will create a registration code for your friends. As a last step send the code into your group chat</li></ol>Well done, you have successfully created a new mission for you and your friends and are all set up to start the adventure. Have fun and enjoy the Game.`
+    const nonAdminInstructions = `Hello ${username},</br>you have chosen to go on a quest with your team mates, but at first, we will have to set up the game. There is not a lot to do from your side, follow these instructions and you will be all set up:<ol><li>Go to this website <a href="https://t.me/Escapeling_Bot">LINK</a> and open the Escapeling Chat within Telegram</li><li>To start the adventure send the message \'/start\' into the chat.</li><li>From this point on Elias will guide you through the mission, tell him to \'join a group\'</li><li>Wait for the Admin to post the registration code into the chat (or maybe remind him of it)</li><li>Provide Elias with the registration code by copying and pasting it to your Escapeling adventure.</li></ol>Well done, you have successfully jsoined the Escapeling game with your friends and are set up to start the adventure. Have fun and enjoy the Game.`
+  
+    if (isAdmin == true) {
+        instructionsText.innerHTML = adminInstructions;
+    } else if(isAdmin == false) {
+        instructionsText.innerHTML = nonAdminInstructions;
+    }
 }
