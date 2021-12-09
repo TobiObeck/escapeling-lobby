@@ -2,9 +2,11 @@ from typing import List
 from flask import Flask
 from flask_socketio import SocketIO, send, emit, join_room, leave_room
 from room import Room
+from datetime import datetime
 from user import User
 import uuid
 
+MIN_PLAYER_COUNT = 3
 MAX_PLAYER_COUNT = 4
 rooms: List[Room] = []
 users: List[User] = []
@@ -49,34 +51,66 @@ def find_room_of_user(userId: str):
 
 @socketio.on('join')
 def handle_join(json):
-    print('received json!!!: ' + str(json))
-    print('received user id: ' + json["userid"])
-    print('received user username: ' + json["username"])
+    username = json["username"]
+    userid = json["userid"]
+
+    print(f"{username} ({userid}) joined!")
 
     # initialize user
-    newUser = User(json["userid"], json["username"])
+    newUser = User(userid, username)
     users.append(newUser)
     
     # handle room assignment and join
     free_room = get_free_room()
     join_room(free_room.get_id())
     free_room.assign_user(newUser)
+    
+    chat_history = filter_out_userid(free_room.get_chat_history())
 
-    # random stuff for testing
-    emit("user-connected", json["username"] + ' has entered the room.', room=free_room.get_id())
+    connected_payload = {
+        'username': username,
+        'chathistory': chat_history,
+        'isadmin': free_room.is_admin(newUser),
+        'usernames': free_room.get_player_names()
+    }
 
-    print("printing all the connected users")
-    for user in users:
-        print(user._user_socket_id, user._name)
+    emit("user-connected", connected_payload, room=free_room.get_id())
 
+def filter_out_userid(chat_history):
+    """
+    remove userId, sensitive information, not intended for client
+    """
+
+    filtered_users = [{'time': msg_item['time'], 'username': msg_item['username'], 'msg': msg_item['msg']} for msg_item in chat_history]
+
+    return filtered_users
+
+
+@socketio.on('send_message')
+def handle_send_message(json):
+    # get room of user
+    chat_room = find_room_of_user(json['userId'])
+
+    # store message to room chat history
+    now = datetime.now()
+    current_time = now.strftime("%H:%M:%S")
+    chat_room.append_to_chat_history(current_time, json['userId'], json['username'], json['msg'])
+
+    # send message to all users within that room    
+    chat_payload = {
+        "time": current_time,
+        "username": json["username"],
+        "msg": json["msg"]
+    }
+
+    emit("broadcast-message", chat_payload, room=chat_room.get_id())
+
+if __name__ == '__main__':
+    socketio.run(app)
+
+
+# leftovers ----------------
 """
-@socketio.on('join')
-def on_join(data):
-    username = data['username']
-    room = data['room']
-    join_room(room)
-    send(username + ' has entered the room.', to=room)
-
 @socketio.on('leave')
 def on_leave(data):
     username = data['username']
@@ -84,31 +118,3 @@ def on_leave(data):
     leave_room(room)
     send(username + ' has left the room.', to=room)
 """
-
-@socketio.on('send_message')
-def handle_send_message(json):
-    print("handle_send_message()", json)
-    
-    # get room of user
-    chat_room = find_room_of_user(json['userId'])
-
-    print("rooms", rooms, len(rooms))
-    print("chat_room", chat_room)
-
-    # store message to room chat history
-    chat_room.append_to_chat_history(json['userId'], json['msg'])
-
-    # send message to all users within that room    
-    
-    payload = {
-        "username": json["username"],
-        "msg": json["msg"]
-    }
-
-    print("payload", payload)
-    
-    emit("broadcast-message", payload, room=chat_room.get_id())
-
-
-if __name__ == '__main__':
-    socketio.run(app)

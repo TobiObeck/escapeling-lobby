@@ -52,6 +52,12 @@ ul {
 	list-style: none;
 }
 
+ol {
+	padding-left: 2rem;
+	padding-top: 0.7rem;
+	padding-bottom: 0.7rem;
+}
+
 a {
 	text-decoration: none;
 }
@@ -112,7 +118,14 @@ a {
 	padding: 10px 0;
 }
 
+.chat-messages-container {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
 .chat-messages {
+	flex-grow: 1;
 	padding: 30px;
 	max-height: 500px;
 	overflow-y: scroll;
@@ -137,6 +150,13 @@ a {
 	color: #777;
 }
 
+.instructions {
+    width: 100%;
+    background-color: #7cf;
+    padding: 0.5rem;
+    text-align: left;
+}
+
 .chat-form-container {
 	padding: 20px 30px;
 	background-color: var(--dark-color-a);
@@ -153,6 +173,10 @@ a {
 	flex: 1;
 }
 
+#chat-form input {
+	margin: 0 0.2rem;
+}
+
 /* Join Page */
 .join-container {
 	max-width: 500px;
@@ -166,6 +190,10 @@ a {
 	background: var(--dark-color-a);
 	border-top-left-radius: 5px;
 	border-top-right-radius: 5px;
+}
+
+#logo{
+	width: 14rem;
 }
 
 .join-main {
@@ -217,4 +245,55 @@ a {
 
 .hidden{
   display: none;
+}
+
+// .collapsible {
+// 	background-color: var(--dark-color-b);
+// 	color: var(--dark-color-a);
+// 	cursor: pointer;
+// 	padding: 18px;
+// 	width: 100%;
+// 	border: none;
+// 	text-align: left;
+// 	outline: none;
+// 	// font-size: 15px;
+//   }
+
+//   .active, .collapsible:hover {
+// 	background-color: var(--light-color);
+//   }
+
+//   .collapsible-content {
+// 	padding: 10px 10px;
+// 	display: True;
+// 	overflow: hidden;
+// 	background-color: var(--dark-color-b);
+// 	color: var(--light-color);
+// 	text-align: left;
+//   }
+
+.collapsible-content {
+	text-align: left;
+	background: var(--light-color);
+	overflow: hidden;
+	border: 1px solid #D2D7F9;
+	padding: 10px;
+	border-radius: 10px;
+}
+
+#collapse-instructions-btn {
+	float: right;
+	font-size: small;
+	background: None
+}
+
+.divider {
+    width: 10px;
+    height: auto;
+    display: inline-block;
+	color: var(--dark-color-a)
+}
+
+.used {
+	color: gray;
 }

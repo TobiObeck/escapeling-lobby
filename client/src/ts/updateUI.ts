@@ -1,3 +1,6 @@
+import { ChatPayload } from "./LobbyMachine";
+import { CHAT_MESSAGES, JOIN_ROOM_BTN_ID } from "./Constants";
+
 // content container
 const joinContainer = (document.getElementById('join-container') as HTMLDivElement)
 const chatContainer = (document.getElementById('chat-container') as HTMLDivElement)
@@ -16,25 +19,40 @@ export function updateUiShowStartScreen(){
     joinContainer.classList.remove('hidden');
     chatContainer.classList.add('hidden')
 }
+    
+export function updateUiConnectLoading(){
+    const joinRoomBtn = (document.getElementById(JOIN_ROOM_BTN_ID) as HTMLButtonElement)
+    joinRoomBtn.innerHTML = 'Connecting...'
+}
 
-export function updateUiChatMessage(chatHistory: Array<any>){
-    const chatMsgContainer = <HTMLDivElement>document.querySelector('.chat-messages')
+export function updateUiUsersInRoom(usernames: string[]){    
+    const userCount = document.getElementById("usercount");    
+    userCount.innerHTML = usernames.length + "/4";
+
+    for (let i = 0; i < usernames.length; i++) {
+        var ul = document.getElementById("users");
+        var li = document.createElement("li");
+        li.appendChild(document.createTextNode(usernames[i]));
+        ul.appendChild(li)
+    }
+}
+
+export function updateUiChatMessage(chathistory: Array<ChatPayload>){
+    const chatMsgContainer = <HTMLDivElement>document.querySelector(CHAT_MESSAGES)
     
     // reset previous chat history that was already printed
     chatMsgContainer.innerHTML = ''
-
+    
     // compose chat message
-    for(let i = 0; i < chatHistory.length; i++){
-        const messagePair = chatHistory[i]
-
-        // TODO the time should be determined when the message is sent 
-        // to the server or when the server receives it
-        const TODO_FIXME_dirtyhacklol = '' + new Date().getHours() + ':' 
-        + new Date().getMinutes()
+    for(let i = 0; i < chathistory.length; i++){
+        const item = chathistory[i]
+        // console.log('current message', i)
 
         const messageContent = ` 
-        <p class="meta">${messagePair[0]} <span>${TODO_FIXME_dirtyhacklol}</span></p>
-        <p class="text">${messagePair[1]}</p>`        
+        <p class="meta">${item.username} <span>${item.time}</span></p>
+        <p class="text">${item.msg}</p>`        
+
+        console.log(messageContent)
 
         var div = document.createElement("div");
         div.innerHTML = messageContent
@@ -60,4 +78,30 @@ export function updateUiClearChatMessageInput(){
         cancelable: true,
     });    
     msgInp.dispatchEvent(event);
+}
+
+export function updateUiShowInstructions(){
+    const instructionsField = (document.getElementById('instructions-container') as HTMLInputElement)
+    const instructionBtn = (document.getElementById('display-instructions-btn') as HTMLInputElement)
+    instructionBtn.classList.add('used');
+    instructionsField.classList.remove('hidden');
+}
+
+export function updateUiCollapseInstructions(){
+    const instructionsField = (document.getElementById('instructions-container') as HTMLInputElement)
+    const instructionBtn = (document.getElementById('display-instructions-btn') as HTMLInputElement)
+    instructionBtn.classList.remove('used');
+    instructionsField.classList.add('hidden');
+}
+
+export function updateUisetInstructionText(isAdmin: boolean | null, username: string) {
+    const instructionsText = (document.getElementById('instructions-txt') as HTMLInputElement)        
+    const adminInstructions = `Hello ${username},</br> you have been selected to set up the Escapeling Game for you and your group members, just follow these instructions: <ol><li>Go to this website <a href="https://t.me/Escapeling_Bot">LINK</a> and open the Escapeling Chat within Telegram</li><li>To start the adventure send the message \'/start\' into the chat</li><li>From this point on Elias will guide you through the mission, tell him to "create a group"</li><li>Elias will create a registration code for your friends. As a last step send the code into your group chat</li></ol>Well done, you have successfully created a new mission for you and your friends and are all set up to start the adventure. Have fun and enjoy the Game.`
+    const nonAdminInstructions = `Hello ${username},</br>you have chosen to go on a quest with your team mates, but at first, we will have to set up the game. There is not a lot to do from your side, follow these instructions and you will be all set up:<ol><li>Go to this website <a href="https://t.me/Escapeling_Bot">LINK</a> and open the Escapeling Chat within Telegram</li><li>To start the adventure send the message \'/start\' into the chat.</li><li>From this point on Elias will guide you through the mission, tell him to \'join a group\'</li><li>Wait for the Admin to post the registration code into the chat (or maybe remind him of it)</li><li>Provide Elias with the registration code by copying and pasting it to your Escapeling adventure.</li></ol>Well done, you have successfully jsoined the Escapeling game with your friends and are set up to start the adventure. Have fun and enjoy the Game.`
+  
+    if (isAdmin == true) {
+        instructionsText.innerHTML = adminInstructions;
+    } else if(isAdmin == false) {
+        instructionsText.innerHTML = nonAdminInstructions;
+    }
 }
