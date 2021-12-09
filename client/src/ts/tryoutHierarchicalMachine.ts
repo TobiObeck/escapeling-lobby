@@ -1,5 +1,3 @@
-/*
-
 import { Machine, assign, createMachine } from 'xstate';
 
 interface TempSchema {
@@ -54,8 +52,8 @@ const pedestrianStates = {
   };
   
 //   const lightMachine = createMachine({
-// const lightMachine = createMachine<any, TryoutHierarchicalEvent>({
-const lightMachine = Machine<TryoutHierarchicalContext, TryoutHierarchicalSchema, TryoutHierarchicalEvent>({
+const lightMachine = createMachine<TryoutHierarchicalContext, TryoutHierarchicalEvent>({
+// const lightMachine = Machine<TryoutHierarchicalContext, TryoutHierarchicalSchema, TryoutHierarchicalEvent>({
     key: 'light',
     initial: 'green',
     states: {
@@ -69,38 +67,38 @@ const lightMachine = Machine<TryoutHierarchicalContext, TryoutHierarchicalSchema
                 TIMER: { target: 'red' }
             }
         },
-        //   red: {
-        //     on: {
-        //       TIMER: { target: 'green' }
-        //     },
-        //     ...pedestrianStates
-        //   }
-        // },
         red: {
-            states: {
-                walk: {
-                    on: {
-                        PED_COUNTDOWN: { target: 'wait' }
-                    }
-                },
-                wait: {
-                    on: {
-                        PED_COUNTDOWN: { target: 'stop' }
-                    }
-                },
-                stop: {},
-                blinking: {}
-            }
-        },
-        on: {
-            POWER_RESTORED: '.red'
-            // POWER_RESTORED: { target: '.red' },
-            // POWER_OUTAGE: {
-            //     target: '.red.blinking' 
-            //     // target: 'red',
-            // },
+            ...pedestrianStates,
+            on: {
+                TIMER: { target: 'green' }
+            },
         }
+        // red: {
+        //     initial: 'walk',
+        //     states: {
+        //         walk: {
+        //             on: {
+        //                 PED_COUNTDOWN: { target: 'wait' }
+        //             }
+        //         },
+        //         wait: {
+        //             on: {
+        //                 PED_COUNTDOWN: { target: 'stop' }
+        //             }
+        //         },
+        //         stop: {},
+        //         blinking: {}
+        //     },
+        //     on: {
+        //         TIMER: { target: 'green' }
+        //     },
+        // },
+    },
+    on: {
+        POWER_RESTORED: '.red',        
+        POWER_OUTAGE: {
+            target: '.red.blinking' 
+            // target: 'red',
+        },
     }
 });
-
-*/
