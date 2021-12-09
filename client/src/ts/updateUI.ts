@@ -29,8 +29,10 @@ export function updateUiUsersInRoom(usernames: string[]){
     const userCount = document.getElementById("usercount");    
     userCount.innerHTML = usernames.length + "/4";
 
+    var ul = document.getElementById("users");
+    ul.innerHTML = ''
     for (let i = 0; i < usernames.length; i++) {
-        var ul = document.getElementById("users");
+
         var li = document.createElement("li");
         li.appendChild(document.createTextNode(usernames[i]));
         ul.appendChild(li)

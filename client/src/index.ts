@@ -2,7 +2,7 @@ import './styles/index.scss'
 import './images/lobby_logo.png'
 
 import { interpret } from 'xstate'
-import { lobbyMachine, LobbyContext } from './ts/LobbyMachine'
+import { createLobbyMachine } from './ts/LobbyMachine'
 import { JOIN_ROOM_BTN_ID } from './ts/Constants'
 
 const IS_DEBUGGING = false
@@ -22,24 +22,9 @@ const msgSendBtn = (document.getElementById('msg-send') as HTMLButtonElement)
 const instructionsDisplayBtn = (document.getElementById('display-instructions-btn') as HTMLInputElement)
 const instructionsCloseBtn = (document.getElementById('collapse-instructions-btn') as HTMLInputElement)
 
-// TODO replace with factory function
-// so that only dynamic context value need to be passed
-// https://xstate.js.org/docs/guides/context.html#initial-context
 
-// usernameInp.value, roomSel.value
-
-const initialContext: LobbyContext = {
-    username: usernameInp.value,
-    lobbyname: roomSel.value,
-    io: null,
-    msg: '',
-    roomId: null,
-    chathistory: [],
-    usernames: [],
-    isadmin: null
-}
-
-const lobbyService = interpret(lobbyMachine.withContext(initialContext))
+const lobbyMachine = createLobbyMachine(usernameInp.value, roomSel.value)
+const lobbyService = interpret(lobbyMachine)
     .onTransition(function(state){
         if(state.changed){
             console.log('state', state.value, "ctx", state.context)            
