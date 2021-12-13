@@ -54,7 +54,6 @@ On Windows with **powershell**, set a `FLASK_APP` variable to the location where
 ```powershell
 $env:FLASK_APP =".\server\server.py"
 $env:FLASK_ENV="development"
-$env:SECRET_KEY="nottheactualkeylolokcool"
 ```
 
 On Windows with **cmd**:
@@ -72,3 +71,12 @@ export FLASK_ENV=development
 ```
 
 You can check with powershell if the environment variables have been set correctly (powershell): `gci env:* | sort-object name`
+
+
+# Deployment Notes
+
+**Config Vars**
+https://dashboard.heroku.com/apps/escapeling-lobby/settings
+
+FLASK_APP   server\server.py
+SECRET_KEY  not gonna tell you
