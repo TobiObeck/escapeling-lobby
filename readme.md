@@ -71,3 +71,12 @@ export FLASK_ENV=development
 ```
 
 You can check with powershell if the environment variables have been set correctly (powershell): `gci env:* | sort-object name`
+
+
+# Deployment Notes
+
+**Config Vars**
+https://dashboard.heroku.com/apps/escapeling-lobby/settings
+
+FLASK_APP   server\server.py
+SECRET_KEY  not gonna tell you

@@ -2,6 +2,7 @@ const paths = require('./paths')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const webpack = require('webpack')
 
 module.exports = {
   /**
@@ -60,6 +61,19 @@ module.exports = {
       template: paths.src + '/template.html', // template file
       filename: 'index.html', // output file
     }),
+
+    /**
+     * DefinePlugin PLugin
+     * 
+     * replaces variables in our code with other values or expressions at compile time.
+     */
+    new webpack.DefinePlugin({
+      'process.env': {
+        'SERVER_URL': process.env.NODE_ENV == 'development'?
+        JSON.stringify('http://127.0.0.1:5000/') :
+        JSON.stringify('https://escapeling-lobby.herokuapp.com/')
+      }
+    })
   ],
 
   /**
