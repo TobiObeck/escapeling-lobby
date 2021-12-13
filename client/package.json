@@ -16,7 +16,11 @@
   ],
   "author": "Tania Rascia <tania@taniarascia.com>",
   "license": "MIT",
-  "devDependencies": {
+  "devDependencies": {    
+  },
+  "dependencies": {
+    "socket.io-client": "^4.3.2",
+    "xstate": "^4.25.0",
     "@babel/core": "^7.5.5",
     "@babel/plugin-proposal-class-properties": "^7.5.5",
     "@babel/preset-env": "^7.5.5",
@@ -46,9 +50,5 @@
     "webpack-cli": "^3.3.7",
     "webpack-dev-server": "^3.8.0",
     "webpack-merge": "^4.2.2"
-  },
-  "dependencies": {
-    "socket.io-client": "^4.3.2",
-    "xstate": "^4.25.0"
   }
 }

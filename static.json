@@ -1,0 +1,12 @@
+{
+    "root": "client/dist/",
+    "clean_urls": true,
+    "error_page": "404",
+    "routes": {
+        "/fonts/*": "/fonts/",
+        "/images/*": "/images/",
+        "/*.js": "/",
+        "/styles/*.css": "/styles/",
+        "/**": "index.html"
+    }
+}

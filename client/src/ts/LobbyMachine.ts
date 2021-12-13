@@ -131,8 +131,9 @@ export const createLobbyMachine = (usernameInpValue: string, roomSelValue: strin
                 // TODO instead of promise, rewrite with callback service
                 invoke: {
                     id: 'connecter',
-                    src: (ctx, event) => {
-                        const socket = io('http://127.0.0.1:5000/');
+                    src: (ctx, event) => {                        
+
+                        const socket = io(process.env.SERVER_URL);
     
                         return new Promise((resolve, reject) => {
                             socket.on('connect', function(){

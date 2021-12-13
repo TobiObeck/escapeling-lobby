@@ -1,5 +1,5 @@
 from typing import List
-from flask import Flask
+from flask import Flask, send_from_directory, render_template
 from flask_socketio import SocketIO, send, emit, join_room, leave_room
 from room import Room
 from datetime import datetime
@@ -16,11 +16,26 @@ users: List[User] = []
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = SECRET_KEY
+
+@app.route('/', defaults={'path': 'index.html'})
+@app.route('/<path:path>')
+def catch_all(path):
+    file_path = os.path.dirname(os.path.realpath(__file__))
+    repo_root_path = os.path.abspath(os.path.join(file_path, ".."))
+    my_path = os.path.abspath(repo_root_path + "/client/dist")
+    print("path", path)
+    print(my_path)
+    print(os.path.dirname(app.instance_path))
+    return send_from_directory(my_path, path)
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    # note that we set the 404 status explicitly
+    return render_template('404.html'), 404 # TODO create 404.html
+
 socketio = SocketIO(app, 
-    cors_allowed_origins=[
-        "http://127.0.0.1:5500",
-        "http://localhost:5500",
-        "http://localhost:8080"],
+    cors_allowed_origins="*",
     logger=True,
     engineio_logger=True)
       
