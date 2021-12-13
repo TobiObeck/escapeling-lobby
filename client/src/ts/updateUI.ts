@@ -28,16 +28,22 @@ export function updateUiConnectLoading(){
 export function updateUiUsersInRoom(usernames: string[]){    
     const userCount = document.getElementById("usercount");    
     userCount.innerHTML = usernames.length + "/4";
-
+      
     var ul = document.getElementById("users");
     ul.innerHTML = ''
     for (let i = 0; i < usernames.length; i++) {
-
-        var li = document.createElement("li");
-        li.appendChild(document.createTextNode(usernames[i]));
-        ul.appendChild(li)
+        if (i === 0){
+            var li = document.createElement("li");
+            li.innerHTML = '<i class="fas fa-crown" style="color: #ed5;"></i> ' + usernames[i]
+            ul.appendChild(li)
+        } else {
+            var li = document.createElement("li");
+            li.appendChild(document.createTextNode(usernames[i]));
+            ul.appendChild(li)            
+        }
     }
-}
+}   
+
 
 export function updateUiChatMessage(chathistory: Array<ChatPayload>){
     const chatMsgContainer = <HTMLDivElement>document.querySelector(CHAT_MESSAGES)
@@ -105,5 +111,12 @@ export function updateUisetInstructionText(isAdmin: boolean | null, username: st
         instructionsText.innerHTML = adminInstructions;
     } else if(isAdmin == false) {
         instructionsText.innerHTML = nonAdminInstructions;
+    }
+}
+
+export function updateUiHandleAutoinstructions(showInstructions: boolean){  
+    if (showInstructions) {
+        console.log('update ui for instructions', showInstructions);
+        updateUiShowInstructions();
     }
 }

@@ -1,5 +1,6 @@
 import './styles/index.scss'
 import './images/lobby_logo.png'
+import './images/admin_crown.png'
 
 import { interpret } from 'xstate'
 import { createLobbyMachine } from './ts/LobbyMachine'

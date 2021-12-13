@@ -10,7 +10,8 @@ import {
     updateUiUsersInRoom,
     updateUiShowInstructions,
     updateUiCollapseInstructions,
-    updateUisetInstructionText
+    updateUisetInstructionText,
+    updateUiHandleAutoinstructions
 } from './updateUI';
 
 export interface ChatPayload {
@@ -23,7 +24,9 @@ interface ConnectedPayload {
     'username': string
     'chathistory': ChatPayload[],
     'isadmin': boolean,
-    'usernames': string[]
+    'usernames': string[],
+    'showinstructionslocally': boolean,
+    'showinstructionsglobally': boolean
 }
 
 interface ConnectedPayloadWithMsg extends Omit<ConnectedPayload, 'username'>{
@@ -179,16 +182,16 @@ export const createLobbyMachine = (usernameInpValue: string, roomSelValue: strin
                         ctx.io.on('user-connected', (arg: ConnectedPayload) => {
                             
                             console.log('user connected!!!', arg)
-                            console.log('previous chathistory', arg['chathistory'])
+                            // console.log('previous chathistory', arg['chathistory'])
                             console.log('username', arg['username'])
                         
-                            const userJoinedMsg = arg['username'] + ' has entered the room.'
-    
                             const value: ConnectedPayloadWithMsg = {                            
-                                userJoinedMsg,
+                                userJoinedMsg: arg['username'] + ' has entered the room.',
                                 chathistory: arg['chathistory'],
                                 isadmin: arg['isadmin'],
-                                usernames: arg['usernames']
+                                usernames: arg['usernames'],
+                                showinstructionslocally: arg['showinstructionslocally'],
+                                showinstructionsglobally: arg['showinstructionsglobally']
                             }
     
                             callback({ type: 'new-user-joined', value: value })
@@ -198,10 +201,14 @@ export const createLobbyMachine = (usernameInpValue: string, roomSelValue: strin
                 states:{
                     waiting:{
                         on: {
-                            'new-user-joined': { // local user
+                            // hanle successfull join for a local user
+                            'new-user-joined': { 
                                 target: 'room',                    
                                 actions: [
-                                    assign({
+                                    assign(
+                                    
+                                    // assigning variables
+                                    {
                                         chathistory: (ctx, event) => { 
                                             return event.value.chathistory
                                         },
@@ -212,13 +219,18 @@ export const createLobbyMachine = (usernameInpValue: string, roomSelValue: strin
                                             return event.value.isadmin
                                         }
                                     }),
+                                    
+                                    // logging stuff
                                     () => {
                                         console.log('THIS IS ONLY LOGGED WHEN THE CURRENT USER JOIN');
                                         console.log('BUT NOT WHEN OTHERS JOIN, WHICH IS BAD');
                                     },
+                                    
+                                    // update UI stuff
                                     (ctx, event) => {
-                                        updateUiUsersInRoom(ctx.usernames),
                                         updateUisetInstructionText(event.value.isadmin, ctx.username),
+                                        updateUiHandleAutoinstructions(event.value.showinstructionslocally),
+                                        updateUiUsersInRoom(ctx.usernames),
                                         updateUiChatMessage(ctx.chathistory)
                                     }
                                 ]
@@ -308,7 +320,10 @@ export const createLobbyMachine = (usernameInpValue: string, roomSelValue: strin
                                             return event.value.usernames
                                         },
                                     }),
-                                    (ctx, _) => updateUiUsersInRoom(ctx.usernames),
+                                    (ctx, event) => {
+                                        updateUiUsersInRoom(ctx.usernames),
+                                        updateUiHandleAutoinstructions(event.value.showinstructionsglobally)
+                                    },
                                     () => {
                                         console.log('USER IS ALREADY IN ROOM! ACTION FIRED');
                                     }

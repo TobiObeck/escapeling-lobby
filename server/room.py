@@ -4,10 +4,11 @@ import uuid
 # from user import User
 
 class Room:
-    def __init__(self, id, max_players):
+    def __init__(self, id, max_players, min_players):
         self._id = id # incrementing by one for each new room
         self._players = []
-        self._max_players = max_players        
+        self._max_players = max_players
+        self._min_players = min_players
         self._chat_history: List[Dict] = []
         self._admin = None
 
@@ -52,13 +53,29 @@ class Room:
     def get_player_names(self) -> List[str]:                
         return [player.get_name() for player in self._players]
 
-    def is_admin(self, user):
+    def is_player_admin(self, user):
         if self._admin.get_id() == user.get_id():
             admin_role = True
         else:
             admin_role = False
 
         return admin_role
+
+    def check_show_instructions_locally(self):
+        if len(self._players) >= self._min_players:
+            show_instructions = True
+        else:
+            show_instructions = False
         
+        print('inside check function', show_instructions)
+        return show_instructions
+    
+    def check_show_instructions_globally(self):
+        if len(self._players) == self._min_players:
+            show_instructions = True
+        else:
+            show_instructions = False
         
+        return show_instructions
+
     
