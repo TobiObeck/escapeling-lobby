@@ -54,6 +54,7 @@ On Windows with **powershell**, set a `FLASK_APP` variable to the location where
 ```powershell
 $env:FLASK_APP =".\server\server.py"
 $env:FLASK_ENV="development"
+$env:SECRET_KEY="nottheactualkeylolokcool"
 ```
 
 On Windows with **cmd**:

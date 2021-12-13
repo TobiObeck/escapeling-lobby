@@ -5,6 +5,9 @@ from room import Room
 from datetime import datetime
 from user import User
 import uuid
+import os
+
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 MIN_PLAYER_COUNT = 3
 MAX_PLAYER_COUNT = 4
@@ -12,7 +15,7 @@ rooms: List[Room] = []
 users: List[User] = []
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'mysecret'
+app.config['SECRET_KEY'] = SECRET_KEY
 socketio = SocketIO(app, 
     cors_allowed_origins=[
         "http://127.0.0.1:5500",
