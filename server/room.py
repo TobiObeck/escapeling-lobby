@@ -1,5 +1,4 @@
 from typing import Dict, List
-import uuid
 
 # from user import User
 
@@ -12,6 +11,7 @@ class Room:
         self._chat_history: List[Dict] = []
         self._admin = None
 
+
     def is_free(self):        
         if len(self._players) >= self._max_players:
             free = False
@@ -20,22 +20,31 @@ class Room:
         
         return free
 
+
     def get_id(self):
         return self._id
 
-    def append_to_chat_history(self, time, userId, username, message):
+
+    def append_to_chat_history(self, time, userid, username, message, type="user"):
         
         message_item = {
             "time": time, 
-            "userid": userId,
+            "userid": userid,
             "username": username,
-            "msg": message
+            "msg": message,
+            "type": type
         }
 
         self._chat_history.append(message_item)
 
+    
+    def add_user_joined_message_to_history(self, username, userid):
+        self.append_to_chat_history("", userid, username, "", "user-joined")
+
+
     def get_chat_history(self):
         return self._chat_history
+
 
     def assign_user(self, user):
         self._players.append(user)
@@ -43,12 +52,14 @@ class Room:
         if self._admin is None:
             self._admin = user
 
+
     def is_user_present(self, userId: str):
         for room_player in self._players:
             if room_player.get_id() == userId:
                 return True
         
         return False
+
 
     def get_player_names(self) -> List[str]:                
         return [player.get_name() for player in self._players]
@@ -60,6 +71,7 @@ class Room:
             admin_role = False
 
         return admin_role
+
 
     def check_show_instructions_locally(self):
         if len(self._players) >= self._min_players:
@@ -77,5 +89,3 @@ class Room:
             show_instructions = False
         
         return show_instructions
-
-    

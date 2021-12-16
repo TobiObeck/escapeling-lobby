@@ -18,6 +18,7 @@ export interface ChatPayload {
     'time': string,
     'username': string,
     'msg': string,
+    'type': string
 }
 
 interface ConnectedPayload {
@@ -27,10 +28,6 @@ interface ConnectedPayload {
     'usernames': string[],
     'showinstructionslocally': boolean,
     'showinstructionsglobally': boolean
-}
-
-interface ConnectedPayloadWithMsg extends Omit<ConnectedPayload, 'username'>{
-    userJoinedMsg: string
 }
 
 export interface LobbySchema {
@@ -57,7 +54,7 @@ type LobbyEvent =
     | { type: 'send.msg', value: string }
     | { type: 'connect' }
     | { type: 'error' }    
-    | { type: 'connection-established', value: ConnectedPayloadWithMsg } // TODO define data type sth like dictionary chathistory, name time
+    | { type: 'connection-established', value: ConnectedPayload } // TODO define data type sth like dictionary chathistory, name time
     | { type: 'message-received', value: ChatPayload }
     | { type: 'show.instructions'}
     | { type: 'collapse.instructions'}
@@ -151,7 +148,7 @@ export const createLobbyMachine = (usernameInpValue: string, roomSelValue: strin
                         });
                     },
                     onDone: {
-                        target: 'newconnected',
+                        target: 'connected',
                         actions: [
                             assign({ io: (ctx, event) => event.data }),
                             (ctx, event) => {
@@ -175,7 +172,7 @@ export const createLobbyMachine = (usernameInpValue: string, roomSelValue: strin
                     document.write('error lol')
                 }
             },
-            newconnected:{
+            connected:{
                 initial: 'waiting',
                 invoke: {
                     id: 'connecter',
@@ -186,8 +183,8 @@ export const createLobbyMachine = (usernameInpValue: string, roomSelValue: strin
                             // console.log('previous chathistory', arg['chathistory'])
                             console.log('username', arg['username'])
                         
-                            const value: ConnectedPayloadWithMsg = {                            
-                                userJoinedMsg: arg['username'] + ' has entered the room.',
+                            const value: ConnectedPayload = {                            
+                                username: arg['username'],
                                 chathistory: arg['chathistory'],
                                 isadmin: arg['isadmin'],
                                 usernames: arg['usernames'],
@@ -210,13 +207,13 @@ export const createLobbyMachine = (usernameInpValue: string, roomSelValue: strin
                                     
                                     // assigning variables
                                     {
-                                        chathistory: (ctx, event) => { 
+                                        chathistory: (ctx, event: { value: ConnectedPayload }) => {
                                             return event.value.chathistory
                                         },
-                                        usernames: (ctx, event) => { 
+                                        usernames: (ctx, event: { value: ConnectedPayload }) => { 
                                             return event.value.usernames
                                         },
-                                        isadmin: (ctx, event) => { 
+                                        isadmin: (ctx, event: { value: ConnectedPayload }) => { 
                                             return event.value.isadmin
                                         }
                                     }),
@@ -265,7 +262,7 @@ export const createLobbyMachine = (usernameInpValue: string, roomSelValue: strin
                                     }
                                 ],
                             },                          
-                            back: {
+                            'back': {
                                 target: '#lobby.startscreen',
                                 actions: [
                                     assign({
@@ -313,15 +310,19 @@ export const createLobbyMachine = (usernameInpValue: string, roomSelValue: strin
                                         updateUiCollapseInstructions()
                                     }
                                 ]
-                            },
+                            },        
                             'new-user-joined': { // remote user, external user joined
                                 actions: [
                                     assign({
-                                        usernames: (ctx, event) => { 
+                                        chathistory: (ctx, event: { value: ConnectedPayload }) => {
+                                            return event.value.chathistory
+                                        },                                             
+                                        usernames: (ctx, event: { value: ConnectedPayload }) => { 
                                             return event.value.usernames
                                         },
                                     }),
-                                    (ctx, event) => {
+                                    (ctx: LobbyContext, event) => {
+                                        updateUiChatMessage(ctx.chathistory),
                                         updateUiUsersInRoom(ctx.usernames),
                                         updateUiHandleAutoinstructions(event.value.showinstructionsglobally)
                                     },

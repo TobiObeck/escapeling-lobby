@@ -55,6 +55,8 @@ def handle_join(json):
     join_room(free_room.get_id())
     free_room.assign_user(newUser)
     
+    free_room.add_user_joined_message_to_history(username, userid)
+    
     connected_payload = {
         'username': username,
         'chathistory': filter_out_userid(free_room.get_chat_history()),
@@ -78,7 +80,7 @@ def handle_send_message(json):
     current_time = now.strftime("%H:%M:%S")
     chat_room.append_to_chat_history(current_time, json['userId'], json['username'], json['msg'])
 
-    # send message to all users within that room    
+    # send message to all users within that room
     chat_payload = {
         "time": current_time,
         "username": json["username"],

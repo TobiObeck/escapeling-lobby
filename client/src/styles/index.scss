@@ -59,7 +59,7 @@ ol {
 }
 
 a {
-	text-decoration: none;
+	font-weight: bold;
 }
 
 .btn {
@@ -136,6 +136,10 @@ a {
 	margin-bottom: 15px;
 	background-color: var(--light-color);
 	border-radius: 5px;
+}
+
+.chat-messages .message.user-joined{
+	background-color: rgba(0, 0, 0, 0);
 }
 
 .chat-messages .message .meta {
@@ -275,10 +279,23 @@ a {
 .collapsible-content {
 	text-align: left;
 	background: var(--light-color);
-	overflow: hidden;
+	overflow-y: hidden;
+
+//	max-height: 500px;
+//	transition-property: all;
+//	transition-duration: 5s;
+//	transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
+
 	border: 1px solid #D2D7F9;
 	padding: 10px;
 	border-radius: 10px;
+	animation-name: animatedisplay;
+	animation-duration: 0.7s
+}
+
+@keyframes animatedisplay {
+	from {top: -300px; opacity: 0}
+	to {top: 0; opacity: 1}
 }
 
 #collapse-instructions-btn {

@@ -1,7 +1,7 @@
 import uuid
 from typing import List
 from room import Room
-from constants import *
+from constants import MAX_PLAYER_COUNT, MIN_PLAYER_COUNT
 
 
 def get_free_room(rooms: List[Room]):
@@ -38,6 +38,6 @@ def filter_out_userid(chat_history):
     remove userId, sensitive information, not intended for client
     """
 
-    filtered_users = [{'time': msg_item['time'], 'username': msg_item['username'], 'msg': msg_item['msg']} for msg_item in chat_history]
+    filtered_users = [{key: val for key, val in d.items() if key != 'userid'} for d in chat_history]
 
     return filtered_users
