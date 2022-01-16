@@ -53,7 +53,15 @@ class Room:
         
         if self._admin is None:
             self._admin = user
+            user.set_is_admin(True)
 
+    def reassign_admin(self):
+        if len(self._players) > 0:
+            self._players[0]
+            self._players[0].set_is_admin(True)
+            self._admin = self._players[0]
+        else:
+            self._admin = None
 
     def is_user_present(self, userid: str):
         for room_player in self._players:
@@ -68,8 +76,19 @@ class Room:
                 return room_player
         return None
 
-    def get_player_names(self) -> List[str]:                
-        return [player.get_name() for player in self._players]
+    def get_players(self) -> List[str]:
+        
+        all_players: List[Dict] = []
+        
+        for i, player in enumerate(self._players):
+            temp_player = {
+                'name': player.get_name(),
+                'id': player.get_id(),
+                'is_admin': player.get_is_admin()
+            }
+            all_players.append(temp_player)
+
+        return all_players
 
     def remove_player(self, userid):
         for i, user in enumerate(self._players):

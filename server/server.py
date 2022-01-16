@@ -39,15 +39,10 @@ socketio = SocketIO(app,
     logger=True,
     engineio_logger=True)
 
-@socketio.on('connect')
-def test_connect(auth):
-    print('Client connected!!!')
+# @socketio.on('connect')
+# def test_connect(auth):
+#     print('Client connected!!!')
     # emit('my response', {'data': 'Connected'})
-
-@socketio.on('end-connection')
-def close_socket():
-    print('Client dicsonnected')
-    socketio.disconnect(0)
 
 @socketio.on('disconnect')
 def test_disconnect():
@@ -65,23 +60,27 @@ def test_disconnect():
                 userid=disconnected_user.get_id(),
                 username=disconnected_user.get_name(),
             )
-
-            if room.is_player_admin(disconnected_user):
-                print("TODO not implemented lol")
-                # TODO assign other player admin role            
-
+            
+            is_admin = room.is_player_admin(disconnected_user)
             room.remove_player(disconnected_userid)
-
-            diconnected_payload = {
+            
+            if is_admin:
+                room.reassign_admin() 
+            
+            disconnected_payload = {
                 'username': disconnected_user.get_name(),
                 'chathistory': filter_out_userid(room.get_chat_history()),
-                # 'isadmin': room.is_player_admin(disconnected_user.get_id().get_id()),
-                'usernames': room.get_player_names(),
-                # 'showinstructionslocally': free_room.check_show_instructions_locally(),
-                # 'showinstructionsglobally': free_room.check_show_instructions_globally()
+                #'isadmin': room.is_player_admin(disconnected_user.get_id().get_id()),
+                'users': room.get_players(),
+                'showinstructionslocally': room.check_show_instructions_locally(),
+                'showinstructionsglobally': room.check_show_instructions_globally()
             }
 
-            emit("user-disconnected", diconnected_payload, room=room.get_id())
+            print("disconn players", room.get_players())
+
+            print("disconnected_payload", disconnected_payload)
+
+            emit("user-disconnected", disconnected_payload, room=room.get_id())
 
 @socketio.on('join')
 def handle_join(json):
@@ -105,7 +104,7 @@ def handle_join(json):
         'username': username,
         'chathistory': filter_out_userid(free_room.get_chat_history()),
         'isadmin': free_room.is_player_admin(newUser),
-        'usernames': free_room.get_player_names(),
+        'users': free_room.get_players(),
         'showinstructionslocally': free_room.check_show_instructions_locally(),
         'showinstructionsglobally': free_room.check_show_instructions_globally()
     }

@@ -1,4 +1,4 @@
-import { ChatPayload } from "./LobbyMachine";
+import { ChatPayload, User } from "./LobbyMachine";
 import { CHAT_MESSAGES, JOIN_ROOM_BTN_ID } from "./Constants";
 
 // content container
@@ -25,20 +25,20 @@ export function updateUiConnectLoading(){
     joinRoomBtn.innerHTML = 'Connecting...'
 }
 
-export function updateUiUsersInRoom(usernames: string[]){    
+export function updateUiUsersInRoom(users: User[]){    
     const userCount = document.getElementById("usercount");    
-    userCount.innerHTML = usernames.length + "/4";
+    userCount.innerHTML = users.length + "/4";
       
     var ul = document.getElementById("users");
     ul.innerHTML = ''
-    for (let i = 0; i < usernames.length; i++) {
-        if (i === 0){
+    for (let i = 0; i < users.length; i++) {
+        if (users[i].is_admin){
             var li = document.createElement("li");
-            li.innerHTML = '<i class="fas fa-crown" style="color: #ed5;"></i> ' + usernames[i]
+            li.innerHTML = '<i class="fas fa-crown" style="color: #ed5;"></i> ' + users[i].name
             ul.appendChild(li)
         } else {
             var li = document.createElement("li");
-            li.appendChild(document.createTextNode(usernames[i]));
+            li.appendChild(document.createTextNode(users[i].name));
             ul.appendChild(li)            
         }
     }
@@ -112,8 +112,25 @@ export function updateUiCollapseInstructions(){
 
 export function updateUisetInstructionText(isAdmin: boolean | null, username: string) {
     const instructionsText = (document.getElementById('instructions-txt') as HTMLInputElement)        
-    const adminInstructions = `Hello ${username},</br> you have been selected to set up the Escapeling Game for you and your group members, just follow these instructions: <ol><li>Go to this website <a href="https://t.me/Escapeling_Bot">LINK</a> and open the Escapeling Chat within Telegram</li><li>To start the adventure send the message \'/start\' into the chat</li><li>From this point on Elias will guide you through the mission, tell him to "create a group"</li><li>Elias will create a registration code for your friends. As a last step send the code into your group chat</li></ol>Well done, you have successfully created a new mission for you and your friends and are all set up to start the adventure. Have fun and enjoy the Game.`
-    const nonAdminInstructions = `Hello ${username},</br>you have chosen to go on a quest with your team mates, but at first, we will have to set up the game. There is not a lot to do from your side, follow these instructions and you will be all set up:<ol><li>Go to this website <a href="https://t.me/Escapeling_Bot">LINK</a> and open the Escapeling Chat within Telegram</li><li>To start the adventure send the message \'/start\' into the chat.</li><li>From this point on Elias will guide you through the mission, tell him to \'join a group\'</li><li>Wait for the Admin to post the registration code into the chat (or maybe remind him of it)</li><li>Provide Elias with the registration code by copying and pasting it to your Escapeling adventure.</li></ol>Well done, you have successfully joined the Escapeling game with your friends and are set up to start the adventure. Have fun and enjoy the Game.`
+    
+    const adminInstructions = `Hello ${username},</br>
+    you are the admin <i class="fas fa-crown"></i>! You need to create a new Escapeling game for your group. Just follow these instructions: 
+    <ol>
+      <li><b>Click</b> on the <a href="https://t.me/Escapeling_Bot" target="_blank" rel="noopener noreferrer">Telegram chat</a> link to open the Game.</li>
+      <li>Start the adventure by sending the message <b>\'/start\'</b> into the Telegram chat bot.</li>
+      <li>Then you will be asked to \'<b>create a group</b>\'.</li>
+      <li><b>Copy</b> the <b>registration code</b> and paste it here into the lobby chat so others can join your adventure.</li>
+    </ol>Have fun and enjoy the Game! 😀`
+    
+    const nonAdminInstructions = `Hello ${username},</br>
+    your Escapeling mission will start in a moment. Just follow these instructions:
+    <ol>
+      <li>Wait for the <b>Admin</b> <i class="fas fa-crown"></i> to post the <b>registration code</b> into the chat (or maybe remind him of it).</li>
+      <li>Copy the <b>registration code</b> and open the <a href="https://t.me/Escapeling_Bot" target="_blank" rel="noopener noreferrer">Telegram chat</a> bot by clicking on the link .</li>
+      <li>Activate the bot by sending the message <b>\'/start\'</b> into the Telegram chat.</li>            
+      <li>Then you will be asked to \'<b>join a group</b>\'.</li>
+      <li><b>Paste</b> the <b>registration code</b> into the Telegram Chat</li>
+    </ol>Have fun and enjoy the Game! 😀`
   
     if (isAdmin == true) {
         instructionsText.innerHTML = adminInstructions;

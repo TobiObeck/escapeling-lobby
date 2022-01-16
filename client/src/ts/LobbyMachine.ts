@@ -14,6 +14,7 @@ import {
     updateUiHandleAutoinstructions,
     updateUiJoinButton
 } from './updateUI';
+import { mapValues } from 'xstate/lib/utils';
 
 export interface ChatPayload {
     'time': string,
@@ -22,11 +23,25 @@ export interface ChatPayload {
     'type': string
 }
 
+export interface User {    
+    'name': string
+    'id': string
+    'is_admin': boolean    
+}
 interface ConnectedPayload {
     'username': string
     'chathistory': ChatPayload[],
     'isadmin': boolean,
-    'usernames': string[],
+    'users': string[],
+    'showinstructionslocally': boolean,
+    'showinstructionsglobally': boolean
+}
+
+interface DisconnectedPayload {
+    'username': string
+    'chathistory': ChatPayload[],
+    // 'isadmin': boolean,
+    'users': User[],
     'showinstructionslocally': boolean,
     'showinstructionsglobally': boolean
 }
@@ -70,7 +85,7 @@ export interface LobbyContext {
     msg: string,
     roomId: null | string,
     chathistory: ChatPayload[],
-    usernames: string[],
+    users: User[],
     isadmin: boolean
 }
 
@@ -83,7 +98,7 @@ export const createLobbyMachine = (usernameInpValue: string, roomSelValue: strin
         msg: '',
         roomId: null,
         chathistory: [],
-        usernames: [],
+        users: [],
         isadmin: null
     }
 
@@ -108,7 +123,7 @@ export const createLobbyMachine = (usernameInpValue: string, roomSelValue: strin
                     //     msg: '',
                     //     roomId: null,
                     //     chathistory: [],
-                    //     usernames: [],
+                    //     users: [],
                     //     isadmin: null
                     // }),
                     (ctx, _) => {
@@ -204,7 +219,7 @@ export const createLobbyMachine = (usernameInpValue: string, roomSelValue: strin
                                     username: arg['username'],
                                     chathistory: arg['chathistory'],
                                     isadmin: arg['isadmin'],
-                                    usernames: arg['usernames'],
+                                    users: arg['users'],
                                     showinstructionslocally: arg['showinstructionslocally'],
                                     showinstructionsglobally: arg['showinstructionsglobally']
                                 }
@@ -227,9 +242,9 @@ export const createLobbyMachine = (usernameInpValue: string, roomSelValue: strin
                     {
                         id: 'other-user-disconnected',
                         src: (ctx, event) => (callback, onReceive) => {
-                            ctx.io.on('user-disconnected', (userLeftPayload: any) => {
-                                console.log('user-disconnected! Payload:', userLeftPayload)
-                                callback({ type: 'a-user-left', value: userLeftPayload })
+                            ctx.io.on('user-disconnected', (disconnected_payload: DisconnectedPayload) => {
+                                console.log('user-disconnected! Payload:', disconnected_payload)
+                                callback({ type: 'a-user-left', value: disconnected_payload })
                             });
                         }
                     }
@@ -250,8 +265,8 @@ export const createLobbyMachine = (usernameInpValue: string, roomSelValue: strin
                                         chathistory: (ctx, event: { value: ConnectedPayload }) => {
                                             return event.value.chathistory
                                         },
-                                        usernames: (ctx, event: { value: ConnectedPayload }) => { 
-                                            return event.value.usernames
+                                        users: (ctx, event: { value: ConnectedPayload }) => { 
+                                            return event.value.users
                                         },
                                         isadmin: (ctx, event: { value: ConnectedPayload }) => { 
                                             return event.value.isadmin
@@ -268,7 +283,7 @@ export const createLobbyMachine = (usernameInpValue: string, roomSelValue: strin
                                     (ctx, event) => {
                                         updateUisetInstructionText(event.value.isadmin, ctx.username),
                                         updateUiHandleAutoinstructions(event.value.showinstructionslocally),
-                                        updateUiUsersInRoom(ctx.usernames),
+                                        updateUiUsersInRoom(ctx.users),
                                         updateUiChatMessage(ctx.chathistory)
                                     }
                                 ]
@@ -307,7 +322,7 @@ export const createLobbyMachine = (usernameInpValue: string, roomSelValue: strin
                                 actions: [
                                     (ctx: LobbyContext, event) => {
                                         console.log(ctx)
-                                        ctx.io.emit('end-connection')
+                                        // ctx.io.emit('end-connection')
                                         ctx.io.disconnect()
                                         console.log("User left room and closed websocket connection")
                                         updateUiJoinButton()
@@ -354,13 +369,13 @@ export const createLobbyMachine = (usernameInpValue: string, roomSelValue: strin
                                         chathistory: (ctx, event: { value: ConnectedPayload }) => {
                                             return event.value.chathistory
                                         },                                             
-                                        usernames: (ctx, event: { value: ConnectedPayload }) => { 
-                                            return event.value.usernames
+                                        users: (ctx, event: { value: ConnectedPayload }) => { 
+                                            return event.value.users
                                         },
                                     }),
                                     (ctx: LobbyContext, event) => {
                                         updateUiChatMessage(ctx.chathistory),
-                                        updateUiUsersInRoom(ctx.usernames),
+                                        updateUiUsersInRoom(ctx.users),
                                         updateUiHandleAutoinstructions(event.value.showinstructionsglobally)
                                     },
                                     () => {
@@ -371,17 +386,36 @@ export const createLobbyMachine = (usernameInpValue: string, roomSelValue: strin
                             'a-user-left': {
                                 actions: [
                                     assign({
-                                        chathistory: (ctx, event: { value: ConnectedPayload }) => {
+                                        chathistory: (ctx, event: { value: DisconnectedPayload }) => {
                                             return event.value.chathistory
                                         },                                             
-                                        usernames: (ctx, event: { value: ConnectedPayload }) => { 
-                                            return event.value.usernames
+                                        users: (ctx, event: { value: DisconnectedPayload }) => { 
+                                            return event.value.users
                                         },
+                                        isadmin: (ctx, event: { value: DisconnectedPayload }) => {
+
+                                            console.log("isadmin event", event)
+                                            console.log(event.value.users)
+                                            
+                                            let tempUser = null
+                                            for(let i = 0; i < event.value.users.length; i++){
+
+                                                console.log(ctx.io.id, event.value.users[i].id)
+
+                                                if(ctx.io.id == event.value.users[i].id){                                                
+                                                    console.log('MATCH!!!')
+                                                    tempUser = event.value.users[i]
+                                                }                                                
+                                            }
+
+                                            return tempUser.is_admin                                            
+                                        }
                                     }),
                                     (ctx: LobbyContext, event) => {
                                         updateUiChatMessage(ctx.chathistory),
-                                        updateUiUsersInRoom(ctx.usernames),
-                                        updateUiHandleAutoinstructions(event.value.showinstructionsglobally)
+                                        updateUiUsersInRoom(ctx.users),
+                                        updateUiHandleAutoinstructions(event.value.showinstructionsglobally),
+                                        updateUisetInstructionText(ctx.isadmin, ctx.username)
                                     },
                                 ]
                             }
