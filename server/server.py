@@ -44,6 +44,11 @@ def test_connect(auth):
     print('Client connected!!!')
     # emit('my response', {'data': 'Connected'})
 
+@socketio.on('end-connection')
+def close_socket():
+    print('Client dicsonnected')
+    socketio.disconnect(0)
+
 @socketio.on('disconnect')
 def test_disconnect():
     print('Client disconnected RIP', request)
@@ -52,9 +57,6 @@ def test_disconnect():
     disconnected_userid = request.sid
 
     for room in rooms:
-        players_with_id = room.DEBUG_get_player_names_with_id()
-        print(players_with_id)
-
         if room.is_user_present(disconnected_userid):
 
             disconnected_user: User = room.get_user(disconnected_userid)

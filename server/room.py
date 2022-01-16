@@ -71,13 +71,15 @@ class Room:
     def get_player_names(self) -> List[str]:                
         return [player.get_name() for player in self._players]
 
-    def DEBUG_get_player_names_with_id(self): # TODO remove this again
-        return [(player.get_name(), player.get_id()) for player in self._players]
-
     def remove_player(self, userid):
         for i, user in enumerate(self._players):
             if user.get_id() == userid:
-                del self._players[i]            
+                del self._players[i]
+
+        # no players are left, clean up messages in room
+        if len(self._players) == 0:
+            self._chat_history = []
+
 
     def is_player_admin(self, user: User):
         if self._admin.get_id() == user.get_id():

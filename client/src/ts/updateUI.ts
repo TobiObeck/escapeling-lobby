@@ -58,7 +58,6 @@ export function updateUiChatMessage(chathistory: Array<ChatPayload>){
 
         let messageContent = ''
 
-        console.log(messageContent)
         let div = document.createElement("div");
         div.classList.add('message')
         
@@ -128,4 +127,9 @@ export function updateUiHandleAutoinstructions(showInstructions: boolean){
         console.log('update ui for instructions', showInstructions);
         updateUiShowInstructions();
     }
+}
+
+export function updateUiJoinButton(){
+    const instructionBtn = (document.getElementById('join-room-btn') as HTMLInputElement)
+    instructionBtn.innerHTML = 'Join Chat'
 }

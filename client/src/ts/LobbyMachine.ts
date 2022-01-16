@@ -11,7 +11,8 @@ import {
     updateUiShowInstructions,
     updateUiCollapseInstructions,
     updateUisetInstructionText,
-    updateUiHandleAutoinstructions
+    updateUiHandleAutoinstructions,
+    updateUiJoinButton
 } from './updateUI';
 
 export interface ChatPayload {
@@ -96,7 +97,22 @@ export const createLobbyMachine = (usernameInpValue: string, roomSelValue: strin
             // start screen state
             startscreen: {
                 entry: [
+                    // having this commented in somehow causes
+                    // errors when emmitting disconnect from the
+                    // previous state. No idea why this entry assign
+                    // is applied before actions from prev state
+                    // assign({
+                    //     username: usernameInpValue,
+                    //     lobbyname: roomSelValue,
+                    //     io: null,
+                    //     msg: '',
+                    //     roomId: null,
+                    //     chathistory: [],
+                    //     usernames: [],
+                    //     isadmin: null
+                    // }),
                     (ctx, _) => {
+                        console.log('start context', ctx)
                         updateUiShowStartScreen()
                     },
                 ],
@@ -199,14 +215,30 @@ export const createLobbyMachine = (usernameInpValue: string, roomSelValue: strin
                     },
                     {
                         id: 'disconnecter',
+                        src: (ctx: LobbyContext, event) => (callback, onReceive) => {
+                            ctx.io.on('disconnect', function(reason: string){
+                                console.log('Some user disconnected XXX', reason)
+                                
+                                // this somehow triggers leave for all users xD
+                                // callback({ type: 'leave', value: reason })
+                            })
+                        }
+                    },
+                    {
+                        id: 'other-user-disconnected',
                         src: (ctx, event) => (callback, onReceive) => {
-                            ctx.io.on('user-disconnected', (userLeftPayload: string) => {
+                            ctx.io.on('user-disconnected', (userLeftPayload: any) => {
                                 console.log('user-disconnected! Payload:', userLeftPayload)
                                 callback({ type: 'a-user-left', value: userLeftPayload })
                             });
                         }
                     }
                 ],
+                on: {
+                    leave: {
+                        target: 'startscreen'
+                    }
+                },
                 states:{
                     waiting:{
                         on: {
@@ -214,10 +246,7 @@ export const createLobbyMachine = (usernameInpValue: string, roomSelValue: strin
                             'new-user-joined': { 
                                 target: 'room',                    
                                 actions: [
-                                    assign(
-                                    
-                                    // assigning variables
-                                    {
+                                    assign({
                                         chathistory: (ctx, event: { value: ConnectedPayload }) => {
                                             return event.value.chathistory
                                         },
@@ -273,20 +302,17 @@ export const createLobbyMachine = (usernameInpValue: string, roomSelValue: strin
                                     }
                                 ],
                             },                          
-                            'back': {
+                            'back': {                                
                                 target: '#lobby.startscreen',
                                 actions: [
-                                    assign({
-                                        username: usernameInpValue,
-                                        lobbyname: roomSelValue,
-                                        io: null,
-                                        msg: '',
-                                        roomId: null,
-                                        chathistory: [],
-                                        usernames: [],
-                                        isadmin: null
-                                    })
-                                ]
+                                    (ctx: LobbyContext, event) => {
+                                        console.log(ctx)
+                                        ctx.io.emit('end-connection')
+                                        ctx.io.disconnect()
+                                        console.log("User left room and closed websocket connection")
+                                        updateUiJoinButton()
+                                    }
+                                ],
                             },
                             'msg.change': {
                                 actions: [
