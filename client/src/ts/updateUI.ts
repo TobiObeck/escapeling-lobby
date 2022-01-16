@@ -62,9 +62,10 @@ export function updateUiChatMessage(chathistory: Array<ChatPayload>){
         let div = document.createElement("div");
         div.classList.add('message')
         
-        if (item.type === 'user-joined'){
+        if (item.type === 'user-joined' || item.type === 'user-left'){
+            const joinedOrLeft =  item.type === 'user-joined'? 'joined' : 'left'
             messageContent =`                        
-            <p class="text"><i>${item.username} just joined the chat!</i></p>`
+            <p class="text"><i>${item.username} just ${joinedOrLeft} the chat!</i></p>`
             div.classList.add('user-joined')
         } 
         else {

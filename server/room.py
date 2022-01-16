@@ -1,6 +1,6 @@
-from typing import Dict, List
+from typing import Dict, List, overload
 
-# from user import User
+from user import User
 
 class Room:
     def __init__(self, id, max_players, min_players):
@@ -37,6 +37,8 @@ class Room:
 
         self._chat_history.append(message_item)
 
+    def add_user_left_message_to_history(self, username, userid):
+        self.append_to_chat_history("", userid, username, "", "user-left")
     
     def add_user_joined_message_to_history(self, username, userid):
         self.append_to_chat_history("", userid, username, "", "user-joined")
@@ -53,18 +55,31 @@ class Room:
             self._admin = user
 
 
-    def is_user_present(self, userId: str):
+    def is_user_present(self, userid: str):
         for room_player in self._players:
-            if room_player.get_id() == userId:
+            if room_player.get_id() == userid:
                 return True
         
         return False
 
+    def get_user(self, userid: str):
+        for room_player in self._players:
+            if room_player.get_id() == userid:
+                return room_player
+        return None
 
     def get_player_names(self) -> List[str]:                
         return [player.get_name() for player in self._players]
 
-    def is_player_admin(self, user):
+    def DEBUG_get_player_names_with_id(self): # TODO remove this again
+        return [(player.get_name(), player.get_id()) for player in self._players]
+
+    def remove_player(self, userid):
+        for i, user in enumerate(self._players):
+            if user.get_id() == userid:
+                del self._players[i]            
+
+    def is_player_admin(self, user: User):
         if self._admin.get_id() == user.get_id():
             admin_role = True
         else:
@@ -72,14 +87,13 @@ class Room:
 
         return admin_role
 
-
     def check_show_instructions_locally(self):
         if len(self._players) >= self._min_players:
             show_instructions = True
         else:
             show_instructions = False
         
-        print('inside check function', show_instructions)
+        # print('inside check function', show_instructions)
         return show_instructions
     
     def check_show_instructions_globally(self):

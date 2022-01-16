@@ -174,28 +174,39 @@ export const createLobbyMachine = (usernameInpValue: string, roomSelValue: strin
             },
             connected:{
                 initial: 'waiting',
-                invoke: {
-                    id: 'connecter',
-                    src: (ctx, event) => (callback, onReceive) => {
-                        ctx.io.on('user-connected', (arg: ConnectedPayload) => {
+                invoke: [
+                    {
+                        id: 'connecter',
+                        src: (ctx, event) => (callback, onReceive) => {
+                            ctx.io.on('user-connected', (arg: ConnectedPayload) => {
+                                
+                                console.log('user connected!!!', arg)
+                                // console.log('previous chathistory', arg['chathistory'])
+                                console.log('username', arg['username'])
                             
-                            console.log('user connected!!!', arg)
-                            // console.log('previous chathistory', arg['chathistory'])
-                            console.log('username', arg['username'])
-                        
-                            const value: ConnectedPayload = {                            
-                                username: arg['username'],
-                                chathistory: arg['chathistory'],
-                                isadmin: arg['isadmin'],
-                                usernames: arg['usernames'],
-                                showinstructionslocally: arg['showinstructionslocally'],
-                                showinstructionsglobally: arg['showinstructionsglobally']
-                            }
-    
-                            callback({ type: 'new-user-joined', value: value })
-                        })
+                                const value: ConnectedPayload = {                            
+                                    username: arg['username'],
+                                    chathistory: arg['chathistory'],
+                                    isadmin: arg['isadmin'],
+                                    usernames: arg['usernames'],
+                                    showinstructionslocally: arg['showinstructionslocally'],
+                                    showinstructionsglobally: arg['showinstructionsglobally']
+                                }
+        
+                                callback({ type: 'new-user-joined', value: value })
+                            })
+                        }
+                    },
+                    {
+                        id: 'disconnecter',
+                        src: (ctx, event) => (callback, onReceive) => {
+                            ctx.io.on('user-disconnected', (userLeftPayload: string) => {
+                                console.log('user-disconnected! Payload:', userLeftPayload)
+                                callback({ type: 'a-user-left', value: userLeftPayload })
+                            });
+                        }
                     }
-                },
+                ],
                 states:{
                     waiting:{
                         on: {
@@ -329,6 +340,23 @@ export const createLobbyMachine = (usernameInpValue: string, roomSelValue: strin
                                     () => {
                                         console.log('USER IS ALREADY IN ROOM! ACTION FIRED');
                                     }
+                                ]
+                            },
+                            'a-user-left': {
+                                actions: [
+                                    assign({
+                                        chathistory: (ctx, event: { value: ConnectedPayload }) => {
+                                            return event.value.chathistory
+                                        },                                             
+                                        usernames: (ctx, event: { value: ConnectedPayload }) => { 
+                                            return event.value.usernames
+                                        },
+                                    }),
+                                    (ctx: LobbyContext, event) => {
+                                        updateUiChatMessage(ctx.chathistory),
+                                        updateUiUsersInRoom(ctx.usernames),
+                                        updateUiHandleAutoinstructions(event.value.showinstructionsglobally)
+                                    },
                                 ]
                             }
                         }
