@@ -69,6 +69,8 @@ a {
 	color: var(--dark-color-a);
 	border: 0;
 	font-size: 17px;
+	margin-left: 2px;
+	margin-right: 2px;
 }
 
 /* Chat Page */
@@ -177,8 +179,13 @@ a {
 	flex: 1;
 }
 
+#chat-form{
+	overflow: scroll;
+}
+
 #chat-form input {
-	margin: 0 0.2rem;
+	margin: 0 2px;
+	border: 1px solid white;
 }
 
 /* Join Page */
@@ -245,6 +252,16 @@ a {
 	.chat-sidebar {
 		display: none;
 	}
+
+	.chat-form-container{
+		padding: 4px 2px;
+		font-size: 14px;
+	}
+
+	.btn.shrink-on-mobile{
+		font-size: 12px;
+		padding: 0px 0.5rem;
+	}
 }
 
 .hidden{
@@ -286,9 +303,13 @@ a {
 //	transition-duration: 5s;
 //	transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
 
+	margin: 6px;
+	margin-bottom: 0px;
 	border: 1px solid #D2D7F9;
 	padding: 10px;
 	border-radius: 10px;
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
 	animation-name: animatedisplay;
 	animation-duration: 0.7s
 }
@@ -302,13 +323,6 @@ a {
 	float: right;
 	font-size: small;
 	background: None
-}
-
-.divider {
-    width: 10px;
-    height: auto;
-    display: inline-block;
-	color: var(--dark-color-a)
 }
 
 .used {
