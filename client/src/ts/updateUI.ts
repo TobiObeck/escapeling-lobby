@@ -125,7 +125,7 @@ export function updateUisetInstructionText(isAdmin: boolean | null, username: st
     const nonAdminInstructions = `Hello ${username},</br>
     your Escapeling mission will start in a moment. Just follow these instructions:
     <ol>
-      <li>Wait for the <b>Admin</b> <i class="fas fa-crown"></i> to post the <b>registration code</b> into the chat (or maybe remind him of it).</li>
+      <li>Wait for the <b>Admin</b> <i class="fas fa-crown"></i> to post the <b>registration code</b> into the chat (or maybe remind him/her of it).</li>
       <li>Copy the <b>registration code</b> and open the <a href="https://t.me/Escapeling_Bot" target="_blank" rel="noopener noreferrer">Telegram chat</a> bot by clicking on the link .</li>
       <li>Activate the bot by sending the message <b>\'/start\'</b> into the Telegram chat.</li>            
       <li>Then you will be asked to \'<b>join a group</b>\'.</li>
