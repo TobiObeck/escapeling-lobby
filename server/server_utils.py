@@ -9,12 +9,14 @@ def get_free_room(rooms: List[Room]):
 
     is_every_room_full = True
     result_room = None
+    room_index = -1
 
     # check if rooms exist and are empty
-    for room in rooms:
+    for i, room in enumerate(rooms):
         if room.is_free():
             is_every_room_full = False
             result_room = room
+            room_index = i
             break
 
     # create new room
@@ -24,9 +26,10 @@ def get_free_room(rooms: List[Room]):
                         max_players=MAX_PLAYER_COUNT,
                         min_players=MIN_PLAYER_COUNT)
         rooms.append(new_room)
+        room_index = len(rooms)-1
         result_room = new_room
 
-    return result_room
+    return (room_index, result_room)
 
 def find_room_of_user(userId: str, rooms: List[Room]):
     for room in rooms:
@@ -41,3 +44,27 @@ def filter_out_userid(chat_history):
     filtered_users = [{key: val for key, val in d.items() if key != 'userid'} for d in chat_history]
 
     return filtered_users
+
+def get_room_name_by_index(room_index: int):
+    room_names = [
+        "Spaceship",
+        "Starbase",
+        "Asteroid",
+        "Hyperdrive",
+        "Zealot",
+        "Hyperion",
+        "Protoss",
+        "Zurk",
+        "Klinğon",
+        "Kaplumbağa"
+    ]
+
+    room_name = ""
+
+    if room_index <= len(room_names)-1:
+        room_name = room_names[room_index] + " " + str(room_index+1)
+    else:
+        room_name = str(room_index+1)
+
+    return room_name
+    

@@ -42,8 +42,12 @@ export function updateUiUsersInRoom(users: User[]){
             ul.appendChild(li)            
         }
     }
-}   
+}
 
+export function updateUiRoomName(roomName: string){
+    const roomNameEl = document.getElementById('room-name') as HTMLHeadingElement
+    roomNameEl.innerHTML = roomName
+}
 
 export function updateUiChatMessage(chathistory: Array<ChatPayload>){
     const chatMsgContainer = <HTMLDivElement>document.querySelector(CHAT_MESSAGES)

@@ -7,6 +7,7 @@ from flask_socketio import SocketIO, send, emit, join_room, leave_room
 from flask import request
 
 from server_utils import get_free_room, find_room_of_user, filter_out_userid
+from server_utils import get_room_name_by_index
 from room import Room
 from user import User
 
@@ -94,7 +95,7 @@ def handle_join(json):
     users.append(newUser)
     
     # handle room assignment and join
-    free_room = get_free_room(rooms)
+    room_index, free_room = get_free_room(rooms)
     join_room(free_room.get_id())
     free_room.assign_user(newUser)
     
@@ -106,7 +107,8 @@ def handle_join(json):
         'isadmin': free_room.is_player_admin(newUser),
         'users': free_room.get_players(),
         'showinstructionslocally': free_room.check_show_instructions_locally(),
-        'showinstructionsglobally': free_room.check_show_instructions_globally()
+        'showinstructionsglobally': free_room.check_show_instructions_globally(),
+        'roomname': get_room_name_by_index(room_index)
     }
 
     print(connected_payload)
