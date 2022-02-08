@@ -20,9 +20,14 @@ export function updateUiShowStartScreen(){
     chatContainer.classList.add('hidden')
 }
     
-export function updateUiConnectLoading(){
+export function updateUiJoinBtnConnectLoading(){
     const joinRoomBtn = (document.getElementById(JOIN_ROOM_BTN_ID) as HTMLButtonElement)
     joinRoomBtn.innerHTML = 'Connecting...'
+}
+
+export function updateUiJoinButtonNeutral(){
+    const joinRoomBtn = (document.getElementById(JOIN_ROOM_BTN_ID) as HTMLInputElement)
+    joinRoomBtn.innerHTML = 'Join Chat'
 }
 
 export function updateUiUsersInRoom(users: User[]){    
@@ -150,7 +155,3 @@ export function updateUiHandleAutoinstructions(showInstructions: boolean){
     }
 }
 
-export function updateUiJoinButton(){
-    const instructionBtn = (document.getElementById('join-room-btn') as HTMLInputElement)
-    instructionBtn.innerHTML = 'Join Chat'
-}

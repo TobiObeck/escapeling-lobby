@@ -6,13 +6,13 @@ import {
     updateUiShowStartScreen,
     updateUiChatMessage,
     updateUiClearChatMessageInput,
-    updateUiConnectLoading,
+    updateUiJoinBtnConnectLoading,
     updateUiUsersInRoom,
     updateUiShowInstructions,
     updateUiCollapseInstructions,
     updateUisetInstructionText,
     updateUiHandleAutoinstructions,
-    updateUiJoinButton,
+    updateUiJoinButtonNeutral,
     updateUiRoomName
 } from './updateUI';
 
@@ -131,6 +131,7 @@ export const createLobbyMachine = (usernameInpValue: string, roomSelValue: strin
                     (ctx, _) => {
                         console.log('start context', ctx)
                         updateUiShowStartScreen()
+                        updateUiJoinButtonNeutral()
                     },
                 ],
                 on: {
@@ -160,7 +161,7 @@ export const createLobbyMachine = (usernameInpValue: string, roomSelValue: strin
                 },
             },
             connecting: {
-                entry: (ctx, _) => updateUiConnectLoading(),
+                entry: (ctx, _) => updateUiJoinBtnConnectLoading(),
                 // TODO instead of promise, rewrite with callback service
                 invoke: {
                     id: 'connecter',
@@ -235,10 +236,9 @@ export const createLobbyMachine = (usernameInpValue: string, roomSelValue: strin
                         id: 'disconnecter',
                         src: (ctx: LobbyContext, event) => (callback, onReceive) => {
                             ctx.io.on('disconnect', function(reason: string){
-                                console.log('Some user disconnected XXX', reason)
-                                
-                                // this somehow triggers leave for all users xD
-                                // callback({ type: 'leave', value: reason })
+                                console.log(`User ${ctx.username} disconnected :/`, reason) // transport close
+                                                                
+                                callback({ type: 'leave' })
                             })
                         }
                     },
@@ -328,8 +328,7 @@ export const createLobbyMachine = (usernameInpValue: string, roomSelValue: strin
                                         console.log(ctx)
                                         // ctx.io.emit('end-connection')
                                         ctx.io.disconnect()
-                                        console.log("User left room and closed websocket connection")
-                                        updateUiJoinButton()
+                                        console.log("User left room and closed websocket connection")                                        
                                     }
                                 ],
                             },
