@@ -1,3 +1,6 @@
+Try it out here:
+https://escapeling-lobby.herokuapp.com/
+
 ## Run client
 
 **Do once:**
