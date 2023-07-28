@@ -83,3 +83,28 @@ https://dashboard.heroku.com/apps/escapeling-lobby/settings
 
 FLASK_APP   server\server.py
 SECRET_KEY  not gonna tell you
+
+## VENV
+
+Create venv
+
+```
+python -m venv .\server\server_venv
+```
+
+Activate the venv
+
+```
+.\server\server_venv\Scripts\activate
+```
+
+Install dependencies
+
+```
+.\server\server_venv\Scripts\python.exe -m pip install -r ..\requirements.txt
+```
+
+Run the server
+```
+python .\server\server.py
+```
